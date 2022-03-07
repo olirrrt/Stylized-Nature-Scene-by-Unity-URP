@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Skybox
+  m_Shader: {fileID: 4800000, guid: dd7fbc7b48e3d44e6811f916b183e5fe, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _CloudNormalTex:
+        m_Texture: {fileID: 2800000, guid: d9e3bc08f0ae94d0f84e8cd9fb35b1d5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CloudTex:
+        m_Texture: {fileID: 2800000, guid: 6f5b4dd9252ac45f282794937d86c3a9, type: 3}
+        m_Scale: {x: 0.15, y: 0.15}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 2, y: 2}
+        m_Offset: {x: 0, y: 0}
+    - _MoonMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NoiseTex:
+        m_Texture: {fileID: 2800000, guid: 406fb891119c340ce8fc657a80872049, type: 3}
+        m_Scale: {x: 50, y: 50}
+        m_Offset: {x: 0, y: 0}
+    - _RampTex:
+        m_Texture: {fileID: 2800000, guid: a0f12d89e93e84b7d8463fa59e52e8df, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampTex_2:
+        m_Texture: {fileID: 2800000, guid: 491c454abe9cb4f99a3d5abed53cd003, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampTex_3:
+        m_Texture: {fileID: 2800000, guid: 1deba9855a7a0426096c5adf0db82da0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampTex_4:
+        m_Texture: {fileID: 2800000, guid: d99f68bd5162c4009bd142b33cfd4611, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampTex_5:
+        m_Texture: {fileID: 2800000, guid: f1686c3e480ff4317b121acd117b0716, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampTex_6:
+        m_Texture: {fileID: 2800000, guid: 89d1cf75ce733479db51bce24f17fe51, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampTex_7:
+        m_Texture: {fileID: 2800000, guid: 08411043322d641a7ae1c9ccf46d048d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _StarTex:
+        m_Texture: {fileID: 2800000, guid: ae7d76b8e4cb54c0b9bdfe53439a8206, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _WindTex:
+        m_Texture: {fileID: 2800000, guid: 615d153d039824d7aaa788860d2d3989, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _FogStrength: 0.27
+    - _SunSize: 0.042
+    m_Colors:
+    - _Bottom: {r: 0.9716981, g: 0.6595083, b: 0.4995995, a: 0}
+    - _Top: {r: 0.26517445, g: 0.5532128, b: 0.9528302, a: 0}
+    - _color: {r: 0.9433962, g: 0.30704877, b: 0.30704877, a: 0}
+  m_BuildTextureStacks: []
