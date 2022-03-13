@@ -90,7 +90,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlphaClip: 0
-    - _AtmosphereThickness: 1
+    - _AtmosphereThickness: 0.99
     - _Blend: 0
     - _BumpScale: 1
     - _ClearCoatMask: 0
@@ -115,7 +115,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SunDisk: 2
-    - _SunSize: 0.04
+    - _SunSize: 0
     - _SunSizeConvergence: 5
     - _Surface: 0
     - _WorkflowMode: 1
