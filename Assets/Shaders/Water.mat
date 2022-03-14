@@ -19,6 +19,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _DerivHeightMap:
+        m_Texture: {fileID: 2800000, guid: 4ffdf6880e00244b8b221bb2706b7204, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _FlowMap:
         m_Texture: {fileID: 2800000, guid: 0c78cbc66882d49b2a38c112a11f11f8, type: 3}
         m_Scale: {x: 4, y: 4}
@@ -27,17 +31,32 @@ Material:
         m_Texture: {fileID: 2800000, guid: cd838de5707a146ffb212a4c648f0380, type: 3}
         m_Scale: {x: 2, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NoiseMap:
+        m_Texture: {fileID: 2800000, guid: ca3936c4c01d046ec8d3843efbf3e2db, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _NormalMap:
         m_Texture: {fileID: 2800000, guid: e29c0aac6e46147fca6122f4166d152d, type: 3}
         m_Scale: {x: 4, y: 4}
         m_Offset: {x: 0, y: 0}
+    - _WaterFogColorMap:
+        m_Texture: {fileID: 2800000, guid: 2969914d723c6497fa81b392c0cdc65e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _Alpha: 0.07
     - _FlowSpeed: 1
     - _FlowStrength: 1
+    - _FoamThickness: 0.49
+    - _RefractionStrength: 0.44
     - _Speed: 1
-    - _Strength: 0.2
-    - _UJump: 0
-    - _VJump: 0
+    - _Strength: 0.6
+    - _UJump: 0.25
+    - _VJump: 0.25
+    - _WaterFogDensity: 0.46
     m_Colors:
-    - _BaseColor: {r: 1, g: 0.9927498, b: 0.2783019, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _FoamColor: {r: 0.9391687, g: 0.990566, b: 0.990566, a: 1}
+    - _WaterFogColor: {r: 0.6065326, g: 0.87535006, b: 0.8867924, a: 1}
+    - _WaterFogColor2: {r: 0.003025995, g: 0.33610082, b: 0.6415094, a: 1}
   m_BuildTextureStacks: []
