@@ -44,19 +44,19 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _Alpha: 0.07
+    - _Alpha: 0.47
     - _FlowSpeed: 1
     - _FlowStrength: 1
-    - _FoamThickness: 0.49
-    - _RefractionStrength: 0.44
-    - _Speed: 1
-    - _Strength: 0.6
+    - _FoamThickness: 0.53
+    - _RefractionStrength: 0.73
+    - _Speed: 0.7
+    - _Strength: 0.2
     - _UJump: 0.25
     - _VJump: 0.25
-    - _WaterFogDensity: 0.46
+    - _WaterFogDensity: 0.44
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _FoamColor: {r: 0.9391687, g: 0.990566, b: 0.990566, a: 1}
-    - _WaterFogColor: {r: 0.6065326, g: 0.87535006, b: 0.8867924, a: 1}
-    - _WaterFogColor2: {r: 0.003025995, g: 0.33610082, b: 0.6415094, a: 1}
+    - _FoamColor: {r: 0.8159487, g: 0.9056604, b: 0.9056604, a: 1}
+    - _WaterFogColor: {r: 0.11372546, g: 0.7936035, b: 0.8980392, a: 1}
+    - _WaterFogColor2: {r: 0, g: 0.096426286, b: 0.509434, a: 1}
   m_BuildTextureStacks: []

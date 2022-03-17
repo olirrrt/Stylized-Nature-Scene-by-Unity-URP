@@ -13,6 +13,19 @@ MonoBehaviour:
   m_Name: NewDepthNormalsFeature
   m_EditorClassIdentifier: 
   m_Active: 0
+--- !u!114 &-881134476196706567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac384968af1e84780a8b01ff2aff7390, type: 3}
+  m_Name: NewScreenSpaceShadowsFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27,7 +40,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_RendererFeatures:
   - {fileID: -3105342414876434006}
-  m_RendererFeatureMap: aa2156c7869be7d4
+  - {fileID: -881134476196706567}
+  m_RendererFeatureMap: aa2156c7869be7d4f906f2c2dc94c5f3
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
   shaders:
@@ -53,6 +67,6 @@ MonoBehaviour:
     passOperation: 0
     failOperation: 0
     zFailOperation: 0
-  m_ShadowTransparentReceive: 1
+  m_ShadowTransparentReceive: 0
   m_RenderingMode: 0
   m_AccurateGbufferNormals: 0
