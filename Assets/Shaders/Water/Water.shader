@@ -214,7 +214,7 @@ Shader "Costumn/Water"
             
             half4 foamMask =1 - saturate(_FoamThickness* depth);
             //float4 noise=SAMPLE_TEXTURE2D(_NoiseMap, sampler_NoiseMap, screenUV);
-            return foamMask ;///* noise;
+            return foamMask.r ;///* noise;
         }
 
         half4 frag(Varyings input) : SV_Target
@@ -288,4 +288,3 @@ Shader "Costumn/Water"
 }
 }
 
- 
