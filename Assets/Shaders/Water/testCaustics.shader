@@ -11,7 +11,8 @@ Shader "Costumn/Caustics"
     {
         Tags{
             "RenderPipeline" = "UniversalPipeline"
-        "RenderType" = "Opaque"}
+        "RenderType" = "Opaque"
+        }
 
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"

@@ -15,7 +15,8 @@ Shader "Costumn/Simplest Ray Marching Cloud"
 
         Tags{
             "Queue" = "Transparent"
-        "RenderPipeline" = "UniversalPipeline"}
+            "RenderPipeline" = "UniversalPipeline"
+        }
 
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
