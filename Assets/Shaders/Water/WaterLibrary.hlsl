@@ -8,6 +8,10 @@ float4 _CameraDepthTexture_TexelSize;
 
 TEXTURE2D(_CameraDepthTexture);
 SAMPLER(sampler_CameraDepthTexture);
+      
+       TEXTURE2D(_PlanarReflectionTexture);
+            SAMPLER(sampler_PlanarReflectionTexture);
+
 
 void CircleWave(out float2 D, float2 xz, float cicle)
 {

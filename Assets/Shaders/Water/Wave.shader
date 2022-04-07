@@ -2,11 +2,11 @@ Shader "Costumn/Wave"
 {
     Properties{
         [MainColor] _BaseColor("base color", color) = (1, 1, 1, 1)
-        _TessellationUniform ("Tessellation Uniform", Range(1, 64)) = 1
-        _Steepness("Steepness", Range(0, 5)) = 0.5
 
-        _Wavelength("Wavelength", Range(0, 15)) = 1 _Direction("Direction (2D)", Vector) = (1, 0, 0, 0)
+        _Transparency("transparency", Range(0, 1)) = 0.5
+        _TessellationUniform("Tessellation Uniform", Range(1, 64)) = 1  
 
+        
         _WaveA("Wave A (dir, steep, wavelength)", Vector) = (1, 0, 0.5, 10)
         _WaveB("Wave B (dir, steep, wavelength)", Vector) = (1, 0, 0.5, 10)
         _WaveC("Wave C (dir, steep, wavelength)", Vector) = (1, 0, 0.5, 10)
@@ -16,9 +16,8 @@ Shader "Costumn/Wave"
     SubShader
     {
         Tags{
-            //"RenderPipeline" = "UniversalPipeline"
-            "Queue" = "Transparent"        
-        }
+            "RenderPipeline" = "UniversalPipeline"
+        "Queue" = "Transparent"}
 
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -38,21 +37,21 @@ Shader "Costumn/Wave"
             #pragma hull hull
             #pragma domain domain
             #pragma target 4.6
+            #pragma multi_compile_fog
+
 
             float4 _BaseColor;
 
-            float _Wavelength;
+            
 
-            float2 _Direction;
-            float _Steepness;
+            float _Transparency;
 
             float4 _WaveA;
             float4 _WaveB;
             float4 _WaveC;
 
-
-            SAMPLER(sampler_unity_SpecCube0);
-
+ 
+            
             struct Attributes
             {
                 float4 positionOS : POSITION;
@@ -67,10 +66,11 @@ Shader "Costumn/Wave"
                 float4 positionSC : TEXCOORD3;
                 float2 uv : TEXCOORD0;
                 float3 normal : TEXCOORD1;
+                half fogFactor : TEXCOORD4;
+
             };
 
-            #define PI 3.1415926
-
+ 
             //////////////////////////////////////////////////////////////////////////////////////////////////////
             void DirectWave()
             {
@@ -84,9 +84,8 @@ Shader "Costumn/Wave"
                 #define Steepness wave.z
                 #define L wave.w
 
-                
-                float2 D = normalize(wave.xy)/10.0;
-                //CircleWave(D,v.xz,float2(0,0));
+                float2 D = normalize(wave.xy) / 10.0;
+                // CircleWave(D,v.xz,float2(0,0));
                 float W = 2 * PI / L;
                 float S = sqrt(g / W);
                 float A = Steepness / W;
@@ -111,46 +110,62 @@ Shader "Costumn/Wave"
                 float3 Bitangent = 0;
                 i.positionOS.xyz  += GerstnerWave(_WaveA, i.positionOS.xyz, Tangent, Bitangent);
                 i.positionOS.xyz  += GerstnerWave(_WaveB, i.positionOS.xyz, Tangent, Bitangent);
-                i.positionOS.xyz  += GerstnerWave(_WaveC, i.positionOS.xyz, Tangent, Bitangent);
+                 i.positionOS.xyz  += GerstnerWave(_WaveC, i.positionOS.xyz, Tangent, Bitangent);
 
                 float3 normal = normalize(cross(Bitangent, Tangent));
-                o.normal =  normal;
-                
-                /* o.normal=TransformObjectToWorldNormal(i.normal);*/
+                // o.normal =  normal; 
+                o.normal = TransformObjectToWorldNormal( normal);
+
+                // o.normal = TransformObjectToWorldNormal(i.normal);
                 o.positionHCS = TransformObjectToHClip(i.positionOS.xyz);
                 o.positionWS = TransformObjectToWorld(i.positionOS.xyz);
                 o.positionSC = ComputeScreenPos(o.positionHCS);
                 o.uv = i.uv;
+                o.fogFactor = ComputeFogFactor(o.positionHCS.z);
 
                 return o;
             }
 
             #include "Tessellation.hlsl"
-            
+
             half4 frag(Varyings i) : SV_Target
             {
 
-                 return float4((i.normal), 1);
-                //  float3 viewDir=normalize(_WorldSpaceCameraPos - i.positionWS);
-                // float3 lightDir = normalize(GetMainLight().direction - i.positionWS);
-                //  return 0.3+ dot(normalize(lightDir+viewDir),normalize(i.normal))+_BaseColor * dot(lightDir, normalize(i.normal)); //+0.3;
+                //return float4((i.normal), 1);
+
+                float2 screenUV = i.positionSC.xy / i.positionSC.w;
+                float4 color= float4(0, 0, 0, 1);
+
+                Light light = GetMainLight();
+                float3 viewDir = normalize(_WorldSpaceCameraPos - i.positionWS);
+                float3 lightDir = normalize(light.direction); 
+                
+                float3 normal = normalize(i.normal);
+                float NdotL = saturate(dot(lightDir, normal));
+                float NdotV = saturate(dot(viewDir, normal));
 
 
-                Light light=GetMainLight();
-                float3 viewDir=normalize(_WorldSpaceCameraPos - i.positionWS);
-                float3 lightDir=normalize(light.direction);
-                float3 h=saturate(normalize(viewDir + lightDir));
-                float3 ks=Fresnel_Schlick(viewDir, h, WaterF0);
-                float3 kd=float3(1, 1, 1)-ks;
-                float3 ref=reflect(-viewDir, i.normal);
-                float4 env=SAMPLE_TEXTURECUBE(unity_SpecCube0,sampler_unity_SpecCube0,ref);    
-                float4 color;
+                float3 H = saturate(normalize(viewDir + lightDir));
+                float3 ks = Fresnel_Schlick(viewDir, H, WaterF0);
+                float3 kd = float3(1, 1, 1) - ks;
+                
+                color.rgb = 0.2 *light.color * (dot(color.rgb, kd) / PI +   ks / (4 * NdotL * NdotV + 0.00001)) * NdotL;
 
-                float2 screenUV=i.positionSC.xy/i.positionSC.w;
-                float4 undercolor=SAMPLE_TEXTURE2D(_CameraOpaqueTexture,sampler_CameraOpaqueTexture,screenUV);
+                float4 env = SAMPLE_TEXTURE2D(_PlanarReflectionTexture, sampler_PlanarReflectionTexture, screenUV);
 
-                color.rgb=undercolor.rgb*kd+ks*env.rgb+_BaseColor.rgb*0.5;
-                color.a=1;
+                float4 undercolor = SAMPLE_TEXTURE2D(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, screenUV);
+
+                color.rgb += undercolor.rgb * kd * 0.5 + ks * env.rgb  + _BaseColor.rgb * kd * 0.5;
+                //float3 color2 =   undercolor.rgb * kd * 0.5 + ks * env.rgb  + _BaseColor.rgb * kd * 0.5;
+                //color.rgb = _Transparency * color2  + (1-_Transparency) * color.rgb;
+
+                
+                ////////////////////////////////////////////////////////////////////////////////////////////////
+                
+                //color.rgb = MixFog(color.rgb,  i.fogFactor );
+
+                
+
                 return color;
             }
             ENDHLSL

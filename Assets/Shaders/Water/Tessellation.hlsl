@@ -44,7 +44,7 @@ Varyings domain(TessellationFactors factors, OutputPatch<Attributes, 3> patch, f
                                                      patch[2].fieldName * barycentricCoordinates.z;
 
     MY_DOMAIN_PROGRAM_INTERPOLATE(positionOS)
-    MY_DOMAIN_PROGRAM_INTERPOLATE(normal)
+    MY_DOMAIN_PROGRAM_INTERPOLATE(normal) 
     // MY_DOMAIN_PROGRAM_INTERPOLATE(tangent)
     MY_DOMAIN_PROGRAM_INTERPOLATE(uv)
 

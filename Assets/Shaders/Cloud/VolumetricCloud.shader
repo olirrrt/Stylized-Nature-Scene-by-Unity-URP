@@ -1,8 +1,9 @@
-Shader "Costumn/Simplest Ray Marching Cloud"
+Shader "Costumn/Box Volumetric Cloud"
 {
     Properties{
         [MainColor] _BaseColor("base color", color) = (1, 1, 1, 1)
-        _NoiseTex("texture 3d", 3d) = "" {} _WeatherTex("Weather texture ", 2d) = "" {}
+        _NoiseTex("texture 3d", 3d) = "" {} 
+        _WeatherTex("Weather texture ", 2d) = "" {}
 
         _SigmaS("scattering coefficient", color) = (1, 1, 1, 1)
         _SigmaA("absorption coefficient", color) = (0, 0, 0, 0)
@@ -194,7 +195,7 @@ Shader "Costumn/Simplest Ray Marching Cloud"
                 }
 
                 float3 color = color_backGround * transmittance + scatteredLight;
-                color = pow(color, 1.0 / 2.2);
+               // color = pow(color, 1.0 / 2.2);
                 return float4(color, 1 - transmittance);
 
                 // return float4(scatteredLight,  transmittance);
@@ -213,7 +214,8 @@ Shader "Costumn/Simplest Ray Marching Cloud"
                 float3 rd = normalize(i.positionWS - _WorldSpaceCameraPos);
                 color_backGround = SAMPLE_TEXTURE2D(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, screenUV);
 
-                float4 color = RayMarching(ro, rd);
+                float4 env=float4(0.05,0.05,0.1,0);
+                float4 color = RayMarching(ro, rd)+env*10;
 
                 return color;
             }

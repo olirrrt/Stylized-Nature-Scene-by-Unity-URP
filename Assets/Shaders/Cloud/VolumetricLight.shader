@@ -20,6 +20,7 @@ Shader "Costumn/Volumetric Light"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+        #include "../Common.hlsl"
 
         ENDHLSL
 
@@ -59,7 +60,8 @@ Shader "Costumn/Volumetric Light"
             struct Attributes
             {
                 float4 positionOS : POSITION;
-                float3 normal : NORMAL;
+                float3 normal : NORMAL; 
+                float2 uv : TEXCOORD0;
             };
 
             struct Varyings
@@ -67,7 +69,9 @@ Shader "Costumn/Volumetric Light"
                 float4 positionHCS : SV_POSITION;
                 float3 positionWS : TEXCOORD0;
                 float3 normal : TEXCOORD1;
-                float4 positionSS : TEXCOORD2;
+                float4 positionSS : TEXCOORD2;                
+                float2 uv : TEXCOORD3;
+
             };
 
             Varyings vert(Attributes i)
@@ -77,13 +81,14 @@ Shader "Costumn/Volumetric Light"
                 o.positionWS = TransformObjectToWorld(i.positionOS.xyz);
                 o.positionSS = ComputeScreenPos(o.positionHCS);
                 o.normal = TransformObjectToWorldNormal(i.normal);
+                o.uv=i.uv;
                 return o;
             }
 
             // 各向同性散射
             float phaseFunction()
             {
-
+                return 1;
                 return 1.0 / (4.0 * PI);
             }
             // 瑞利散射
@@ -97,17 +102,19 @@ Shader "Costumn/Volumetric Light"
             // 向光源步进，需要步进的是体积阴影
             float3 getScatteredLight(float3 pos)
             {
-                #define dd _LightStep
+                //#define dd _LightStep
 
                 Light light = GetMainLight();
                 // 平行光的近似位置
-                float3 lightPos = _MainLightPosition * 12;
-                float3 L = lightPos - pos;
+                //float3 lightPos = _MainLightPosition;//  * 6;
+                // float3 lightPos =  -normalize(light.direction)*22; 
+                float3 lightPos =float3(0.562, 23.64, 5.05);
+                //float3 L = lightPos - pos;
 
-                #define MAX_ITER min(_Light_maxIterNum, length(L) / dd)
-
+                #define MAX_ITER 8
+float dd=100/MAX_ITER;
                 float3 ro = pos;
-                float3 rd = normalize(L);
+                float3 rd = normalize(light.direction);
 
                 float dis = 0;
                 float4 positionL = TransformWorldToShadowCoord(pos);
@@ -121,8 +128,9 @@ Shader "Costumn/Volumetric Light"
                     shadow *= exp(-dd * _SigmaT);
                 }
 
-                return phaseFunction() * shadow * light.color * 1.0 / (dot(L, L));
+                return phaseFunction() * shadow * light.color ;// * 1.0 / (length(L));
             }
+            
 
             float4 RayMarching(float3 ro, float3 rd, float maxDistance)
             {
@@ -154,11 +162,12 @@ Shader "Costumn/Volumetric Light"
                 //仅有散射，离光越近越白
                 return float4(scatteredLight, 1);
 
-                // return float4(transmittance * color_test.rgb + scatteredLight, 1);
+                //return float4(transmittance * color_test.rgb + scatteredLight, 1);
             }
 
             half4 frag(Varyings i) : SV_Target
             {
+                //if(_MainLightPosition.y<3)return 1;
                 float2 screenUV = i.positionSS.xy / i.positionSS.w;
 
                 float linearDepth = LinearEyeDepth(SampleSceneDepth(screenUV), _ZBufferParams);
