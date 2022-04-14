@@ -1,4 +1,4 @@
-Shader "Costumn/Dynamic Sky 2.0"
+Shader "Costumn/Dynamic Sky with Atmosphere"
 {
     Properties{
         _WindTex("Wind", 2D) = "white" {} _MainTex("Texture2d", 2D) = "white" {}
@@ -9,7 +9,8 @@ Shader "Costumn/Dynamic Sky 2.0"
         _WindTex("Wind", 2D) = "white" {}
 
         _StarTex("Star", 2D) = "white" {} 
-        _NoiseTex("Star Noise", 2D) = "" {} _MoonTex("Moon Texture", 2D) = "white" {} _SunSize("Sun Size", Range(0, 0.5)) = 0.06 _FogStrength("Fog Strength", Range(0, 1)) = 0.2
+        _NoiseTex("Star Noise", 2D) = "" {} 
+        _MoonTex("Moon Texture", 2D) = "white" {} _SunSize("Sun Size", Range(0, 0.5)) = 0.06 _FogStrength("Fog Strength", Range(0, 1)) = 0.2
 
     } SubShader
     {
@@ -90,7 +91,7 @@ Shader "Costumn/Dynamic Sky 2.0"
             #define GREEN float4(0, 1, 0, 1)
             #define BABYBLUE float4(0, 1, 1, 1)
 
-           float4  _GroundColor;
+            float4  _GroundColor;
 
             TEXTURE2D(_MoonTex);
             SAMPLER(sampler_MoonTex);
@@ -123,7 +124,7 @@ Shader "Costumn/Dynamic Sky 2.0"
                 Hr = 8000.0; // Reyleight scattering top
                 Hm = 1200.0; // Mie scattering top
 
-                _Max_Iter = 164;
+                _Max_Iter = 128;
                 _Max_Iter_Light = 8;
 
                 _Earth_Center = float3(0, 0, 0) - float3(0, 1, 0) * (EarthRadius);
@@ -230,14 +231,16 @@ Shader "Costumn/Dynamic Sky 2.0"
                 float3 f = frac(x);
                 f = f*f*(3.0-2.0*f);
                 
-                float2 uv  = (p.xy+float2(37.0,17.0)*p.z);                
-                //   float2 uv  = (p.xy+float2(137.0, 0)*p.z);
-
-                float2 rg1 = SAMPLE_TEXTURE2D_LOD(_NoiseTexRGB,sampler_NoiseTexRGB, (uv+ float2(0.5,0.5))/256.0, 0.0 ).yx;
-                float2 rg2 = SAMPLE_TEXTURE2D_LOD( _NoiseTexRGB,sampler_NoiseTexRGB,(uv+ float2(1.5,0.5))/256.0, 0.0 ).yx;
-                float2 rg3 = SAMPLE_TEXTURE2D_LOD( _NoiseTexRGB,sampler_NoiseTexRGB, (uv+ float2(0.5,1.5))/256.0, 0.0 ).yx;
-                float2 rg4 = SAMPLE_TEXTURE2D_LOD( _NoiseTexRGB,sampler_NoiseTexRGB, (uv+ float2(1.5,1.5))/256.0, 0.0 ).yx;
-                float2 rg  = lerp( lerp(rg1,rg2,f.x), lerp(rg3,rg4,f.x), f.y );
+                // float2 uv  = (p.xz);  
+                // uv*= 1;              
+                float2 uv  = (p.xy+float2(37.0, 17.0)*p.z)+f.xy;
+                float2 rg  = SAMPLE_TEXTURE2D_LOD(_NoiseTexRGB,sampler_NoiseTexRGB, (uv+ float2(0.5,0.5))/256.0, 0.0 ).yx;
+                
+                // float2 rg1 = SAMPLE_TEXTURE2D_LOD(_NoiseTexRGB,sampler_NoiseTexRGB, (uv+ float2(0.5,0.5))/256.0, 0.0 ).yx;
+                // float2 rg2 = SAMPLE_TEXTURE2D_LOD( _NoiseTexRGB,sampler_NoiseTexRGB,(uv+ float2(1.5,0.5))/256.0, 0.0 ).yx;
+                //float2 rg3 = SAMPLE_TEXTURE2D_LOD( _NoiseTexRGB,sampler_NoiseTexRGB, (uv+ float2(0.5,1.5))/256.0, 0.0 ).yx;
+                //float2 rg4 = SAMPLE_TEXTURE2D_LOD( _NoiseTexRGB,sampler_NoiseTexRGB, (uv+ float2(1.5,1.5))/256.0, 0.0 ).yx;
+                //float2 rg  = lerp( lerp(rg1,rg2,f.x), lerp(rg3,rg4,f.x), f.y );
                 
                 return lerp( rg.x, rg.y, f.z );
             }
@@ -262,7 +265,7 @@ Shader "Costumn/Dynamic Sky 2.0"
                 float s = 1.0;
                 float a = 0.0;
                 float f = 1.0;    
-                for( int i=0; i<16; i++ )
+                for( int i=0; i<4; i++ )
                 {
                     n += s*gnoise(x*f);
                     //  a += s;
@@ -292,12 +295,12 @@ Shader "Costumn/Dynamic Sky 2.0"
             //  float getCloudDensity(){
                 //     fbm()
             // }
-
+            float tmp;
             void getDensity(float3 pos, out float dR, out float dM)
             {
                 float height = distance(pos, _Earth_Center) - EarthRadius;
                 dR = exp(-height / Hr);
-                dM = exp(-height / Hm) + 0.1;
+                dM = exp(-height / Hm) + 0.1; 
                 
                 // float _Cloud_Height_Low = 5e3;
                 //float _Cloud_Height_Heigh = 75e3;   
@@ -305,18 +308,23 @@ Shader "Costumn/Dynamic Sky 2.0"
                 float _Cloud_Height_Heigh = 8e3;
 
 
-                 float cloud=0;
-                if(height > _Cloud_Height_Low && height < _Cloud_Height_Heigh){
-                    // cloud=fbm(pos )*0.001;//*199;
-                    // cloud = fbm(pos  , 0.75) ; 
-                    //
-                    //cloud*=999;
+                float cloud=0;
+                float cloudy=0.6;
+                if( height > _Cloud_Height_Low && height < _Cloud_Height_Heigh){
+                    //cloud=fbm(pos )*0.001;//*199;
 
-                //    cloud = fnoise(pos * 0.0003) +0.01;
-                  //  cloud = smoothstep(0.44, 0.57, cloud);
-                    //cloud*= 80    ;
+                    //pos += t
+                    ///cloud = fbm(pos  , 0.75) ; 
+                    
+                    //;
+
+                    //  cloud = fnoise(pos * 0.002 * 0.25) + 0.1*cloudy;
+                    //  cloud = smoothstep(0.45, 0.69, cloud);
+                    
+                    //  cloud *=  99  ;
+                    // cloud *= sin(3.1415*(height -  5e3)/5e3) * cloudy;
                 }  
-                dM += cloud;
+                // dM += cloud;
             }
 
             float4 RayMarching(float3 ro, float3 rd)
@@ -456,12 +464,14 @@ Shader "Costumn/Dynamic Sky 2.0"
                 float dis = distance(sunPos, v);
                 bool aboveHorizon = i.positionOS.y > 0;
 
+                tmp = i.positionOS.y;
                 float4 sunColor = renderSunandMoon(v, isMoon);
-
-                float4 skyColor = RayMarching(_Start_Pos, rd);
+                float4 skyColor= RayMarching(_Start_Pos, rd);
+                 
+                
                 float4 starColor =  renderStar(v);
 
-                return  skyColor + skyColor.a *(sunColor +starColor); //+float4(0.5,0.2,0.2,1);
+                return  skyColor +sunColor  + float4(0.2,0.2,0.6,1);
             }
             ENDHLSL
         }

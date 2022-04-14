@@ -1,15 +1,11 @@
 using UnityEngine;
 using System.Collections;
-//using System.Collections.Generic;
 
 [ExecuteInEditMode]
 [RequireComponent(typeof(Camera))]
 
 public class PlanarReflection : MonoBehaviour
 {
-
-
-    //[SerializeField]
     RenderTexture rt;
     RenderTexture tempBuffer;
 

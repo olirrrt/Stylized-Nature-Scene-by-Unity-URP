@@ -1,5 +1,22 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9152189910191353578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d57a01fb2ee94e3fb046db8f833d94a, type: 3}
+  m_Name: VolumetricLight
+  m_EditorClassIdentifier: 
+  m_Active: 0
+  settings:
+    resolutionScale: 0.122
+    intensity: 0.164
+    blurWidth: 0.76
 --- !u!114 &-7504780662573987221
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32,7 +49,7 @@ MonoBehaviour:
   m_Active: 0
   passSettings:
     renderPassEvent: 500
-    material: {fileID: 2100000, guid: c95f720b0965241aeb66e13bcf4dc52d, type: 2}
+    material: {fileID: 2100000, guid: 21e628f643b3a4d7681845f516d202cc, type: 2}
 --- !u!114 &-3105342414876434006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77,10 +94,10 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: -3105342414876434006}
   - {fileID: 7899353282978922528}
-  - {fileID: 5967715842303694761}
   - {fileID: -5823471320402570280}
   - {fileID: 8670629681386580006}
-  m_RendererFeatureMap: aa2156c7869be7d420404653f523a06da997fbb4f095d152d8d3ba2bb0df2eaf2668019ac1435478
+  - {fileID: -9152189910191353578}
+  m_RendererFeatureMap: aa2156c7869be7d420404653f523a06dd8d3ba2bb0df2eaf2668019ac14354781651215ec4e3fc80
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -163,7 +180,7 @@ MonoBehaviour:
   m_Active: 0
   passSettings:
     renderPassEvent: 450
-    downsample: 1
+    downsample: 2
     blurStrength: 13
     blurWidth: 160
     material: {fileID: 0}

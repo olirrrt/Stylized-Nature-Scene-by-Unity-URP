@@ -1,4 +1,4 @@
-Shader "Costumn/ Auroras"
+Shader "Custom/ Auroras"
 {
     Properties{
         _NoiseTex("texture 3d", 3d) = "" {} _WeatherTex("Weather texture ", 2d) = "" {} 

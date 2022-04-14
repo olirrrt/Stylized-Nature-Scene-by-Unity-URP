@@ -128,8 +128,7 @@ Shader "Costumn/Volumetric Light Post Process"
                 float dis = 0;
                 float4 positionL = TransformWorldToShadowCoord(pos);
                 float3 shadow = SAMPLE_TEXTURE2D_SHADOW(_MainLightShadowmapTexture, sampler_MainLightShadowmapTexture, positionL.xyz);
-                float3 shadow = SAMPLE_TEXTURE2D_SHADOW(_MainLightShadowmapTexture, sampler_MainLightShadowmapTexture, positionL.xyz);
-
+ 
                 // volshadow
                 for (int i = 0; i < MAX_ITER; ++i)
                 {

@@ -28,13 +28,19 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _WeatherTex:
-        m_Texture: {fileID: 2800000, guid: 18705e2a6221f4fb5a6271d891c63daf, type: 3}
-        m_Scale: {x: 11, y: 1}
+        m_Texture: {fileID: 2800000, guid: a14c6589c2bcc4d2c8ad10e391d95cf3, type: 3}
+        m_Scale: {x: 0.005, y: 0.005}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Light_maxIterNum: 4
-    - _maxIterNum: 526
+    - _Density_Strength: 51
+    - _Erode_Strength: 1
+    - _IterNum: 17
+    - _LightIterNum: 0
+    - _Light_maxIterNum: 0
+    - _Step: 0.2
+    - _UVScale: 0.008
+    - _maxIterNum: 0
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _SigmaA: {r: 0, g: 0, b: 0, a: 0}

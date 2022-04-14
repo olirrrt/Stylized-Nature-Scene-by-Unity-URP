@@ -67,6 +67,11 @@ Shader "Custom/Terrain"
             #pragma target 4.6
             #pragma shader_feature _SEPARATE_TOP_MAPS
 
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _SHADOWS_SOFT
+            #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
+
             float4 _MapScale;
             float4 _TopBaseColor;
             float _TopThreshold;

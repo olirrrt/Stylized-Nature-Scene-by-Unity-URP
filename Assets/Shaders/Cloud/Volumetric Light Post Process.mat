@@ -21,7 +21,7 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Light_maxIterNum: 8
+    - _Light_maxIterNum: 50
     - _maxIterNum: 1000
     m_Colors:
     - _SigmaA: {r: 0, g: 0, b: 0, a: 0}

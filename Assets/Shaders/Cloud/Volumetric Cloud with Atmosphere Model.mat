@@ -29,20 +29,21 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Cloud_Height_Strength: 293
+    - _Cloud_Height_Strength: 156
     - _Density_Strength: 1.2
-    - _Density_UVStrength: 10
+    - _Density_UVStrength: 1
+    - _LightIterNum: 9.2
     - _LightStep: 40
     - _Light_maxIterNum: 8
-    - _Max_Iter: 157
-    - _SigmaT_Strength: 50
+    - _Max_Iter: 71
+    - _SigmaT_Strength: 13.3
     - _Step: 1
     - _Sun_Height: 2000
     - _Sun_Intensity: 10
-    - _UVScale: 0.001
-    - _Weather_UVScale: 150
+    - _UVScale: 0.0032
+    - _Weather_UVScale: 10
     - _maxIterNum: 1000
     m_Colors:
-    - _SigmaA: {r: 0, g: 0, b: 0, a: 0}
-    - _SigmaS: {r: 1, g: 0.495283, b: 0.495283, a: 1}
+    - _SigmaA: {r: 0.11320752, g: 0.11320752, b: 0.11320752, a: 0}
+    - _SigmaS: {r: 0.9433962, g: 0.9433962, b: 0.9433962, a: 1}
   m_BuildTextureStacks: []

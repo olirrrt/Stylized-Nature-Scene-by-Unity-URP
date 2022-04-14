@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Simple Far Lights
   m_Shader: {fileID: 4800000, guid: ed4bdb14a44964a9890f5578ddd5c24b, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: _SPARK_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -25,7 +25,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Strength: 12.6
+    - _Spark: 1
+    - _Strength: 50
     m_Colors:
     - _BaseColor: {r: 1, g: 0.77456754, b: 0.033018887, a: 1}
   m_BuildTextureStacks: []

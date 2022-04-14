@@ -45,8 +45,8 @@ public class DynamicSkyController : MonoBehaviour
     void OnGUI()
     {
         // string s = "vertex: " + verNum.ToString() + "\nindex: " + idxNum.ToString();
-        float t = remapTime();
-        GUI.Label(new Rect(35, 35, 100, 50), t.ToString() + " " + "_isNight" + flag);
+       // float t = remapTime();
+        //GUI.Label(new Rect(35, 35, 100, 50), t.ToString() + " " + "_isNight" + flag);
     }
 
     float remapTime()

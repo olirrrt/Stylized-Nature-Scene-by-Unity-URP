@@ -1,4 +1,4 @@
-Shader "Unlit/Unlit"
+Shader "Custom/Simple Dynamic Sky"
 {
     Properties
     {
@@ -18,6 +18,7 @@ Shader "Unlit/Unlit"
         // _MoonMask("Texture", 2D) = "white" {}  
         _SunSize ("Sun Size", Range(0,0.5)) =0.06
         _FogStrength ("Fog Strength", Range(0,1)) =0.2
+        _FogColor("Fog Color",  Color) =   (1, 1, 1, 1)
 
     }
     SubShader
@@ -65,7 +66,7 @@ Shader "Unlit/Unlit"
 
             //float _daySpan;            
             float _Speed;
-            
+            float4 _FogColor;
             v2f vert (appdata v)
             {
                 v2f o;    
@@ -148,7 +149,7 @@ Shader "Unlit/Unlit"
 
             float4 getCloud(float3 v,TBNMatrix tbn,float3 lightDir){
                 float2 cloudUV=float2(v.x,v.z)/remap(float2(0,1),float2(0.12,1),abs(v.y));
-                cloudUV=TRANSFORM_TEX(cloudUV,_CloudTex); 
+                cloudUV = TRANSFORM_TEX(cloudUV,_CloudTex); 
                 float2 offset=tex2D(_WindTex,cloudUV).xy+_Time*0.05;
                 //cloudUV+=offset;
                 
@@ -165,7 +166,7 @@ Shader "Unlit/Unlit"
                 if(dot(normal,lightDir)>0)return lerp(shadowColor,lightColor,pow(dot(normal,lightDir),0.25))*cloudColor;//*10;//float4(1,0,0,1);
                 else return cloudColor*shadowColor;//(dot(normal,lightDir)+0.4)*cloudColor;
             }
-           
+            
             float4 getStar(float3 v){
                 float intensity=1;
                 intensity=lerp(0,2,pow(v.y,0.9));
@@ -180,20 +181,20 @@ Shader "Unlit/Unlit"
                 float3 v=normalize(i.localPos.xyz);                
                 float3 sunPos=normalize(_WorldSpaceLightPos0.xyz);
                 
-                float4  cloudColor= getCloud(v,i.tbn,sunPos);
+                //float4  cloudColor= getCloud(v,i.tbn,sunPos);
                 
-                float4  starColor=getStar(v);
+                //float4  starColor=getStar(v);
                 float dis=distance(sunPos,v);
                 bool aboveHorizon=i.localPos.y>0;
                 
-                float4 fogColor=WHITE;//float4(1,0,0,1);
+                
                 if(dis<_SunSize && aboveHorizon )
                 return getSunColor();
                 else{
                     //float4 color = tex2D(_MainTex, getUV(i.localPos.xyz));
                     
-                    i.localPos.y=i.localPos.y*0.5+0.5;    
-                    float2 uv=float2(1-i.localPos.y,0.5);       
+                    i.localPos.y = i.localPos.y * 0.5 + 0.5;    
+                    float2 uv = float2(i.localPos.y, 0.5);       
                     float4 color=tex2D(_RampTex_4,uv);
                     
                     //float4 color=getSkyColor(uv);
@@ -201,14 +202,14 @@ Shader "Unlit/Unlit"
                     // apply fog
                     //UNITY_APPLY_FOG(i.fogCoord, col);
                     
-                  //  if(aboveHorizon)
-                 //   color=lerp(color,getSunColor(), getAttenuate(dis));
-                  //  if(aboveHorizon)
-                  //  color=color*(1-cloudColor.a)+cloudColor*cloudColor.a;
+                    //  if(aboveHorizon)
+                    //   color=lerp(color,getSunColor(), getAttenuate(dis));
+                    //  if(aboveHorizon)
+                    //  color=color*(1-cloudColor.a)+cloudColor*cloudColor.a;
                     //if(starColor.a>0.2)
                     //color=color*(1-starColor.a)+starColor*starColor.a;
-                    if(aboveHorizon)
-                    color=lerp(fogColor,color,pow(v.y,_FogStrength));
+                    // if(aboveHorizon)
+                     color=lerp(_FogColor,color, max(0.3, pow(abs(v.y),_FogStrength)));
                     return color;
                 }
                 
