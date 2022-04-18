@@ -25,7 +25,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _FlowMap:
         m_Texture: {fileID: 2800000, guid: 0c78cbc66882d49b2a38c112a11f11f8, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 5, y: 5}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: cd838de5707a146ffb212a4c648f0380, type: 3}
@@ -45,18 +45,18 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Alpha: 0.124
+    - _Alpha: 0.055
     - _Amplitude: 0.22
     - _FlowSpeed: 1
     - _FlowStrength: 1
-    - _FoamThickness: 0.618
-    - _RefractionStrength: 0.618
+    - _FoamThickness: 0.854
+    - _RefractionStrength: 0.903
     - _SpecularStrength: 0.027
-    - _Speed: 2.57
+    - _Speed: 1.25
     - _Strength: 2.64
     - _UJump: 0.25
     - _VJump: 0.25
-    - _WaterFogDensity: 0.119
+    - _WaterFogDensity: 0.625
     - _Wave_Speed: 0.09
     - _Wavelength: 0
     m_Colors:

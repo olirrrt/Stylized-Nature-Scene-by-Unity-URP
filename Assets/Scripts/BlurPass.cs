@@ -11,37 +11,36 @@ public class BlurPass : ScriptableRenderPass
 
     // We will store our pass settings in this variable.
     BlurFeature.PassSettings passSettings;
-    
+
     RenderTargetIdentifier colorBuffer, temporaryBuffer;
     int temporaryBufferID = Shader.PropertyToID("_TemporaryBuffer");
-    
+
     private RenderTargetIdentifier cameraColorTargetIdent;
 
     Material material;
-    
-    // It is good to cache the shader property IDs here.
-    static readonly int BlurStrengthProperty = Shader.PropertyToID("_BlurStrength");
-        static readonly int BlurWidthProperty = Shader.PropertyToID("_BlurWidth");
 
-    // The constructor of the pass. Here you can set any material properties that do not need to be updated on a per-frame basis.
-    public BlurPass(BlurFeature.PassSettings passSettings)
+   
+    static readonly int BlurStrengthProperty = Shader.PropertyToID("_BlurStrength");
+    static readonly int BlurWidthProperty = Shader.PropertyToID("_BlurWidth");
+
+     public BlurPass(BlurFeature.PassSettings passSettings)
     {
         this.passSettings = passSettings;
 
         // Set the render pass event.
-        renderPassEvent = passSettings.renderPassEvent; 
-        
+        renderPassEvent = passSettings.renderPassEvent;
+
         // We create a material that will be used during our pass. You can do it like this using the 'CreateEngineMaterial' method, giving it
         // a shader path as an input or you can use a 'public Material material;' field in your pass settings and access it here through 'passSettings.material'.
-        if(material == null) material = CoreUtils.CreateEngineMaterial("Hidden/Box Blur");
-        
+        if (material == null) material = CoreUtils.CreateEngineMaterial("Hidden/Box Blur");
+
         // Set any material properties based on our pass settings. 
         material.SetInt(BlurStrengthProperty, passSettings.blurStrength);
         material.SetFloat(BlurWidthProperty, passSettings.blurWidth);
- 
+
         colorBuffer = new RenderTargetIdentifier(passSettings.rt);
     }
-    
+
     public void SetCameraColorTarget(RenderTargetIdentifier cameraColorTargetIdent)
     {
         this.cameraColorTargetIdent = cameraColorTargetIdent;
@@ -55,22 +54,22 @@ public class BlurPass : ScriptableRenderPass
     {
         // Grab the camera target descriptor. We will use this when creating a temporary render texture.
         RenderTextureDescriptor descriptor = renderingData.cameraData.cameraTargetDescriptor;
-        
+
         // Downsample the original camera target descriptor. 
         // You would do this for performance reasons or less commonly, for aesthetics.
         descriptor.width /= passSettings.downsample;
         descriptor.height /= passSettings.downsample;
-        
+
         // Set the number of depth bits we need for our temporary render texture.
         descriptor.depthBufferBits = 0;
-        
+
         // Enable these if your pass requires access to the CameraDepthTexture or the CameraNormalsTexture.
         // ConfigureInput(ScriptableRenderPassInput.Depth);
         // ConfigureInput(ScriptableRenderPassInput.Normal);
-        
+
         // Grab the color buffer from the renderer camera color target.
         /// colorBuffer = renderingData.cameraData.renderer.cameraColorTarget;
-        
+
         // Create a temporary render texture using the descriptor from above.
         cmd.GetTemporaryRT(temporaryBufferID, descriptor, FilterMode.Bilinear);
         temporaryBuffer = new RenderTargetIdentifier(temporaryBufferID);
@@ -80,25 +79,25 @@ public class BlurPass : ScriptableRenderPass
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
     {
         // Grab a command buffer. We put the actual execution of the pass inside of a profiling scope.
-        CommandBuffer cmd = CommandBufferPool.Get(); 
+        CommandBuffer cmd = CommandBufferPool.Get();
         using (new ProfilingScope(cmd, new ProfilingSampler(ProfilerTag)))
         {
             // Blit from the color buffer to a temporary buffer and back. This is needed for a two-pass shader.
-             Blit(cmd, colorBuffer, temporaryBuffer, material,0); 
-             Blit(cmd, temporaryBuffer, colorBuffer);  
+            Blit(cmd, colorBuffer, temporaryBuffer, material, 0);
+            Blit(cmd, temporaryBuffer, colorBuffer);
         }
 
-         context.ExecuteCommandBuffer(cmd);
+        context.ExecuteCommandBuffer(cmd);
         CommandBufferPool.Release(cmd);
     }
-    
+
     // Called when the camera has finished rendering.
     // Here we release/cleanup any allocated resources that were created by this pass.
     // Gets called for all cameras i na camera stack.
     public override void OnCameraCleanup(CommandBuffer cmd)
     {
         if (cmd == null) throw new ArgumentNullException("cmd");
-        
-         cmd.ReleaseTemporaryRT(temporaryBufferID);
+
+        cmd.ReleaseTemporaryRT(temporaryBufferID);
     }
 }

@@ -95,7 +95,7 @@ public class DepthNormalsFeature : ScriptableRendererFeature
 
     public override void Create()
     {
-        depthNormalsMaterial = CoreUtils.CreateEngineMaterial("Hidden/Internal-DepthNormalsTexture");
+        depthNormalsMaterial = CoreUtils.CreateEngineMaterial("Custom/Hidden/Internal-DepthNormalsTexture");
         depthNormalsPass = new DepthNormalsPass(RenderQueueRange.opaque, -1, depthNormalsMaterial);
         depthNormalsPass.renderPassEvent = RenderPassEvent.AfterRenderingPrePasses;
         depthNormalsTexture.Init("_CameraDepthNormalsTexture");

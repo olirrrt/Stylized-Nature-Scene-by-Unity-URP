@@ -27,5 +27,5 @@ Material:
     m_Floats:
     - _SplitRGB_Strength: 0.008
     m_Colors:
-    - _BaseColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _BaseColor: {r: 0.62352943, g: 0.69411767, b: 0.85098046, a: 1}
   m_BuildTextureStacks: []

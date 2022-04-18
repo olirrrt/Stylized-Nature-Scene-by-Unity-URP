@@ -32,7 +32,7 @@ Material:
     - _AlphaClip: 0
     - _AlphaClipThreshold: 1
     - _Animate: 1
-    - _RimStrength: 0.325
+    - _RimStrength: 1
     - _SSRange: 44.1
     - _SSStrength: 0
     - _Spark: 0
@@ -40,7 +40,7 @@ Material:
     - _WindSpeed: 0.14
     - _WindStrength: 1
     m_Colors:
-    - _BaseColor: {r: 0.21528465, g: 0.6037736, b: 0.18511927, a: 1}
+    - _BaseColor: {r: 0.55176824, g: 0.7264151, b: 0.42145783, a: 1}
     - _RimColor: {r: 0.6016376, g: 0.7392061, b: 0.754717, a: 1}
     - _SSColor: {r: 0.4735616, g: 0.8207547, b: 0.05032932, a: 1}
     - _SpecularColor: {r: 0.58095986, g: 0.754717, b: 0.010679938, a: 1}

@@ -25,7 +25,6 @@ public class TemplatePass : ScriptableRenderPass
     {
         this.passSettings = passSettings;
 
-        // Set the render pass event.
         renderPassEvent = passSettings.renderPassEvent;
 
         // We create a material that will be used during our pass. You can do it like this using the 'CreateEngineMaterial' method, giving it
@@ -72,9 +71,10 @@ public class TemplatePass : ScriptableRenderPass
         CommandBuffer cmd = CommandBufferPool.Get();
         using (new ProfilingScope(cmd, new ProfilingSampler(ProfilerTag)))
         {
-            // Blit from the color buffer to a temporary buffer and back. This is needed for a two-pass shader.
-            //Blit(cmd, colorBuffer, temporaryBuffer, material, 0); // shader pass 0
-            Blit(cmd, temporaryBuffer, colorBuffer, material, 0); // shader pass 1
+            Blit(cmd, colorBuffer, temporaryBuffer, material, 0);
+            Blit(cmd, temporaryBuffer, colorBuffer);  // shader pass 1            
+            //Blit(cmd, temporaryBuffer, colorBuffer, material, 0); // shader pass 1
+
         }
 
         // Execute the command buffer and release it.

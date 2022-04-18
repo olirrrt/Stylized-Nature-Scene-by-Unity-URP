@@ -23,27 +23,35 @@ Material:
         m_Texture: {fileID: 11700000, guid: f9a1f3a08f453453197d92316d9e62fe, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _StepNoiseTex:
+        m_Texture: {fileID: 2800000, guid: b7efb4358d194468d9811548e7124bb8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _WeatherTex:
         m_Texture: {fileID: 2800000, guid: 18705e2a6221f4fb5a6271d891c63daf, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Cloud_Height_Strength: 156
+    - _Cloud_Height_Strength: 295
     - _Density_Strength: 1.2
-    - _Density_UVStrength: 1
-    - _LightIterNum: 9.2
+    - _Density_UVStrength: 0.58
+    - _End_Height: 3000
+    - _LightIterNum: 83.2
     - _LightStep: 40
     - _Light_maxIterNum: 8
-    - _Max_Iter: 71
-    - _SigmaT_Strength: 13.3
+    - _Max_Iter: 89
+    - _PhaseParameter: -0.57
+    - _SigmaE_Strength: 6.7
+    - _SigmaT_Strength: 0.1
+    - _Start_Height: 2000
     - _Step: 1
     - _Sun_Height: 2000
     - _Sun_Intensity: 10
-    - _UVScale: 0.0032
-    - _Weather_UVScale: 10
+    - _UVScale: 0.001
+    - _Weather_UVScale: 300
     - _maxIterNum: 1000
     m_Colors:
-    - _SigmaA: {r: 0.11320752, g: 0.11320752, b: 0.11320752, a: 0}
+    - _SigmaA: {r: 0, g: 0, b: 0, a: 0}
     - _SigmaS: {r: 0.9433962, g: 0.9433962, b: 0.9433962, a: 1}
   m_BuildTextureStacks: []

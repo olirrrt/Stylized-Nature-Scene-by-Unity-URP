@@ -1,21 +1,29 @@
 Shader "Custom/Directional Water"
 {
     Properties{
+        [Header(Texture)]
         [MainColor] _BaseColor("base color", color) = (1, 1, 1, 1)
-        [NoScaleOffset] _NormalMap("Normal Map", 2D) = "bumps" {}
         [NoScaleOffset] _DerivHeightMap("Deriv (AG) Height (B)", 2D) = "black" {} 
         _FlowMap("Flow Map(RG, A noise)", 2D) = "white" {}
-        _SpecularStrength("Specular Strength", Range(0, 20)) = 0.6 
-        _BRDFTex("_BRDFTex", 2D) = "white" {} 
-        _Strength("flow Strength", Range(0, 10)) = 1 
+
+        [Header(Flow)]
         _Speed("flow Speed", Range(0, 10)) = 1 
         _Tiling ("Tiling",   Range(0, 10)) = 1
         _GridResolution ("Grid Resolution",Range(0, 30)) = 10
+
+        [Header(Surface)]   
+        _Transparency("Transparency", Range(0, 1)) = 0.5
+        _SpecularStrength("Specular Strength", Range(0, 512)) = 0.6 
+        
+        _Strength("flow Strength", Range(0, 10)) = 1 
+        
         _NoiseTex("noise", 2D) = "black" {} 
+        _RefNoiseTiling("Noise Tiling", Range(0, 10)) = 1
         _RefNoiseStrength("Noise Strength", Range(0, 1)) = 0.6 
         _RefNoiseSpeed("Noise Speed", Range(0, 1)) = 0.6 
-        _Transparency("Transparency", Range(0, 1)) = 0.5
+        
 
+        [Header(UnderWater)]
         _WaterFogColor("Water Fog Color", Color) = (1, 1, 1, 1)
         _WaterFogColor2("Water Fog Color2", Color) = (1, 1, 1, 1)
 
@@ -23,12 +31,14 @@ Shader "Custom/Directional Water"
         // _WaterFogColorMap ("Water Fog Color", 2D) ="white" {}
         _RefractionStrength("Refraction Strength", Range(0, 1)) = 0.25
 
+        [Header(Foam)]
         _FoamThickness("Foam Thickness", Range(0, 1)) = 0.25 
         _FoamColor("Foam color", color) = (1, 1, 1, 1)
         
-        _Wavelength("Wavelength", Range(0, 15)) = 1 
-        _Wave_Speed("Wave Speed", Range(0, 5)) = 0.5 
-    _Amplitude("Amplitude", Range(0, 5)) = 0.05}
+        //_Wavelength("Wavelength", Range(0, 15)) = 1 
+        //_Wave_Speed("Wave Speed", Range(0, 5)) = 0.5 
+        //_Amplitude("Amplitude", Range(0, 5)) = 0.05
+    }
 
     SubShader
     {
@@ -69,8 +79,7 @@ Shader "Custom/Directional Water"
             TEXTURE2D(_FlowMap);
             SAMPLER(sampler_FlowMap);
 
-            TEXTURE2D(_NormalMap);
-            SAMPLER(sampler_NormalMap);
+            
 
             SAMPLER(sampler_unity_SpecCube0);
 
@@ -80,8 +89,9 @@ Shader "Custom/Directional Water"
             TEXTURE2D(_NoiseTex);
             SAMPLER(sampler_NoiseTex);
             
-            TEXTURE2D(_BRDFTex);
-            SAMPLER(sampler_BRDFTex);
+
+            TEXTURE2D(_WaterDepthTex);
+            SAMPLER(sampler_WaterDepthTex);
 
             float4 _FlowMap_ST;
             float4 _WaterFogColor, _WaterFogColor2;
@@ -99,6 +109,7 @@ Shader "Custom/Directional Water"
             float _SpecularStrength;
             float _RefNoiseStrength;
             float _RefNoiseSpeed;
+            float _RefNoiseTiling;
 
             float4 _BaseColor;
 
@@ -190,7 +201,7 @@ Shader "Custom/Directional Water"
                 // float4 noise=SAMPLE_TEXTURE2D(_NoiseTex, sampler_NoiseTex, screenUV);
                 return foamMask.r; ///* noise;
             }
-            float2 test;
+            
             float3 flowCell(float2 uv, float2 offset){ 
                 float2 shift = 1 - offset;
                 shift *= 0.5;
@@ -198,7 +209,7 @@ Shader "Custom/Directional Water"
                 offset *= 0.5;
                 float2x2 derivRotation;
                 float2 uvFlow = gatFlowUV(uv + offset, offset, shift, derivRotation);
-                test=uvFlow;
+                
                 float3 dh  = UnpackDerivativeHeight(SAMPLE_TEXTURE2D(_DerivHeightMap, sampler_DerivHeightMap, uvFlow)) ;
                 dh.xy = mul(derivRotation, dh.xy);
                 dh *= 4;
@@ -227,11 +238,13 @@ Shader "Custom/Directional Water"
 
                 float3 dh = dhA * wA + dhB * wB + dhC * wC + dhD * wD;
                 float4 albedo = dh.z * dh.z ;
+
+                // return albedo;
                 
 
                 i.normalWS = normalize(float3(-dh.xy, 1));
 
-       
+                
 
                 ////////////////////////////////////////////////////////////////////////////////////
                 
@@ -246,72 +259,60 @@ Shader "Custom/Directional Water"
                 float3 kd = float3(1, 1, 1) - ks;
                 float NdotL = saturate(dot(lightDir, i.normalWS));
                 float NdotV = saturate(dot(viewDir, i.normalWS));
- 
-                 float3 surfaceColor =  light.color * (dot(albedo.rgb, kd) / PI +  _SpecularStrength * ks / (4 * NdotL * NdotV + 0.00001)) * NdotL;
+                
+                // float3 surfaceColor =  light.color * (dot(albedo.rgb, kd) / PI +  _SpecularStrength * ks / (4 * NdotL * NdotV + 0.00001)) * NdotL;
                 
                 ////////////////////////////////////////////////////////////////////////////////////
 
                 float2 screenUV = i.positionSC.xy / i.positionSC.w;
 
                 float3 refCol = 0;
-                //float2 uvOffset = i.normalWS;
-                float2 uvOffset = SAMPLE_TEXTURE2D(_NoiseTex, sampler_NoiseTex, i.uv * frac(_Time.y) * _RefNoiseSpeed).rg  * _RefNoiseStrength;
+                
+                float2 uvOffset = SAMPLE_TEXTURE2D(_NoiseTex, sampler_NoiseTex, screenUV * _RefNoiseTiling + frac(_Time.y)*_RefNoiseSpeed).rg * _RefNoiseStrength ;
                 // aspect
                 uvOffset.y *=  _CameraDepthTexture_TexelSize.z * _CameraDepthTexture_TexelSize.y;
                 
                 
                 
                 float3 ref = reflect(-viewDir, tmp);
-                return SAMPLE_TEXTURE2D(_PlanarReflectionTexture, sampler_PlanarReflectionTexture, screenUV  );
                 
-                if(i.normalWS.y >= 0.0) {
-                    refCol =  SAMPLE_TEXTURE2D(_PlanarReflectionTexture, sampler_PlanarReflectionTexture, screenUV + uvOffset ).rgb;
-                }
-                else {
-                    refCol = SAMPLE_TEXTURECUBE(unity_SpecCube0, sampler_unity_SpecCube0, ref);
-                }
+                // return SAMPLE_TEXTURE2D(_PlanarReflectionTexture, sampler_PlanarReflectionTexture, screenUV  );
+                
+                  if(i.normalWS.y >= 0.0) {
+                    refCol =  SAMPLE_TEXTURE2D(_PlanarReflectionTexture, sampler_PlanarReflectionTexture, screenUV + uvOffset  ).rgb;
+                 }
+                   else {
+                         refCol = SAMPLE_TEXTURECUBE(unity_SpecCube0, sampler_unity_SpecCube0, ref);
+                  }
+                
                 
 
-                //return  float4(refCol.x, refCol.y, refCol.z, 1);
-                surfaceColor += 0.4 * refCol;  
-
-                // return float4(env.x, env.y, env.z, 1); 
-                float4 underColor = SAMPLE_TEXTURE2D(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, screenUV);
+                // return float4(refCol.x, refCol.y, refCol.z, 1); 
                 float3 specular = pow(saturate(dot(i.normalWS, H)), _SpecularStrength);
 
-                float2 brdf = SAMPLE_TEXTURE2D(_BRDFTex, sampler_BRDFTex, float2(NdotL, 0.5));
-
-
-                //surfaceColor +=   env * (  _SpecularStrength * ks / (4 * NdotL * NdotV + 0.00001));// * NdotL;                
-                //surfaceColor +=   env * ks;// * NdotL;
-
-                //surfaceColor =env;
-                // surfaceColor = float3(1, 1, 1) - exp(-1 * surfaceColor * 1);
-                float4 color ;//= float4(0, 0, 0,1) ;
-                color.a = 1;
-                //return color;
-                // underColor = _BaseColor;
-                //lerp(underColor.rgb, surfaceColor.rgb, _Transparency);
-                // color.rgb = underColor * _Transparency + surfaceColor * (1 - _Transparency);
-                //return color; 
-
-                // float4 tmp2=1;
-                // tmp2.rgb = ( brdf.x * ks + float3(brdf.y,brdf.y,brdf.y))* refCol.rgb ;
-                // return tmp2;
                 
-                // color.rgb   = underColor.rgb * kd * 0.3 + _BaseColor.rgb * kd * 0.5  + ( brdf.x * ks + float3(brdf.y,brdf.y,brdf.y))* refCol.rgb + specular * 100 ;  
-
-                color.rgb   = underColor.rgb * kd * 0.3 + _BaseColor.rgb * kd * 0.5  +  ks * refCol.rgb + specular * 100 ;  
-                color.a = 1; 
-
-                color.rgb = MixFog(color.rgb,  i.fogFactor );                
-                color.rgb = MixFog(color.rgb,  i.fogFactor );
-
-                return color;
-
-
+                float4 surfaceColor =  1;
+                surfaceColor.rgb = _BaseColor.rgb * albedo * kd  +  ks * refCol.rgb + specular * 1000 ; 
+                //return surfaceColor; 
                 
+
+
+                ////////////////////////////////////////////////////////////////////////////////////
+
+                float4 underColor = 1;
+                underColor.rgb = getUnderWaterColor(i.positionSC, i.normalWS , _WaterFogColor, _WaterFogColor2, _RefractionStrength, _WaterFogDensity);
+                //return underColor;     
+                
+                float4 color; 
+                
+                
+                color.rgb   = underColor.rgb * kd  +  ks * refCol.rgb + specular * 100 ; 
+
+                color = underColor * (_Transparency) +  surfaceColor * (1-_Transparency);
+
+                color.a = 1;  
                 //  float noise = 1 - SAMPLE_TEXTURE2D(_NoiseTex, sampler_NoiseTex, uvwA.xy).r;
+                
                 //   float noise2 = 1 - SAMPLE_TEXTURE2D(_NoiseTex, sampler_NoiseTex, uvwB.xy).r;
 
                 //   float foamMask = getFoam(i.positionSC) - noise;
@@ -319,6 +320,11 @@ Shader "Custom/Directional Water"
 
                 // return color;
                 // return foamMask + foamMask2 > 0 ? _FoamColor : color;
+
+
+                color.rgb = MixFog(color.rgb,  i.fogFactor );                
+
+                return color;
             }
             ENDHLSL
         }

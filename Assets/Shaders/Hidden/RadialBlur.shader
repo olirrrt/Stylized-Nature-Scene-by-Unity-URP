@@ -1,4 +1,4 @@
-Shader "Hidden/RadialBlur"
+Shader "Custom/Hidden/RadialBlur"
 {
     Properties
     {
@@ -53,17 +53,17 @@ Shader "Hidden/RadialBlur"
                 //half4 color = half4(0.0f, 0.0f, 0.0f, 1.0f);
                 half4 color =unity_LightColor[0];// * 0.1;
 
-                //2
+                
                 float2 ray = i.uv - _Center.xy;
 
-                //3
+                
                 for (int i = 0; i < NUM_SAMPLES; i++)
                 {
                     float scale = 1.0f - _BlurWidth * (float(i) / float(NUM_SAMPLES - 1));
                     color.xyz += tex2D(_MainTex, (ray * scale) + _Center.xy).xyz / float(NUM_SAMPLES);
                 }
 
-                //4
+                
                 return color * _Intensity;
             }
             ENDCG

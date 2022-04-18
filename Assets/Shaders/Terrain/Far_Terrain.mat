@@ -64,5 +64,5 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.010679956, g: 0.1509434, b: 0.10585873, a: 0}
     - _MapScale: {r: 1, g: 1, b: 0, a: 0}
-    - _TopBaseColor: {r: 0.6762638, g: 0.78482443, b: 0.8584906, a: 0}
+    - _TopBaseColor: {r: 0.716, g: 0.74760526, b: 0.85882354, a: 0}
   m_BuildTextureStacks: []

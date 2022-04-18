@@ -29,9 +29,9 @@ Shader "Costumn/Volumetric Light"
 
             // ZWrite Off
             //  ZTest on
-            // Blend SrcAlpha OneMinusSrcAlpha
+             Blend SrcAlpha OneMinusSrcAlpha
             // Blend SrcAlpha One
-            Blend One zero
+          //  Blend One zero
             // Blend DstColor Zero
             HLSLPROGRAM
             #pragma vertex vert
@@ -112,7 +112,7 @@ Shader "Costumn/Volumetric Light"
                 //float3 L = lightPos - pos;
 
                 #define MAX_ITER 8
-float dd=100/MAX_ITER;
+                float dd=100/MAX_ITER;
                 float3 ro = pos;
                 float3 rd = normalize(light.direction);
 
@@ -138,7 +138,7 @@ float dd=100/MAX_ITER;
                 #define dd _Step
                 #define MAX_ITER min(1000, maxDistance / dd)
 
-                float3 transmittance = 1;
+                float  transmittance = 1;
                 float3 scatteredLight = 0;
 
                 // 累积走过的距离
@@ -160,7 +160,7 @@ float dd=100/MAX_ITER;
                 //仅有透射，近白远黑
                 // return float4(transmittance,1);
                 //仅有散射，离光越近越白
-                return float4(scatteredLight, 1);
+                return float4(scatteredLight, 1-transmittance);
 
                 //return float4(transmittance * color_test.rgb + scatteredLight, 1);
             }
@@ -176,8 +176,11 @@ float dd=100/MAX_ITER;
                 float3 rd = normalize(i.positionWS - ro);
 
                 color_test = SAMPLE_TEXTURE2D(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, screenUV);
-                float4 ray = RayMarching(ro, rd, min(50, linearDepth));
-
+                float4 ray = RayMarching(ro, rd, min(50, linearDepth)); 
+             
+               // step(0.99,ray.a);
+                ray.rgb  =ray.rgb*10 + color_test.rgb;
+               
                 return ray;
             }
             ENDHLSL

@@ -1,4 +1,4 @@
-Shader "Costumn/Surface"
+Shader "Custom/Surface"
 {
     Properties{
         _BaseMap ("Base Texture", 2D) = "white" {}
@@ -46,10 +46,10 @@ Shader "Costumn/Surface"
             //#pragma fragment frag
             #pragma vertex vert
             #pragma fragment frag
-           // #pragma hull hull
-           // #pragma domain domain
-           // #pragma target 4.6
-         
+            // #pragma hull hull
+            // #pragma domain domain
+            // #pragma target 4.6
+            
 
             
             TEXTURE2D(_AlbedoMap);
@@ -144,11 +144,7 @@ Shader "Costumn/Surface"
         Pass
         {
             //  Name "ShadowCaster"
-            Tags{"LightMode" = "ShadowCaster"}
-
-            
-            
-            
+            Tags{"LightMode" = "ShadowCaster"}          
         }
 
     }

@@ -270,7 +270,7 @@ Shader "Custom/Planar Reflection"
                 // aspect
                 uvOffset.y *=  _CameraDepthTexture_TexelSize.z * _CameraDepthTexture_TexelSize.y;
                 
-                
+                return  SAMPLE_TEXTURE2D(_PlanarReflectionTexture, sampler_PlanarReflectionTexture, screenUV  );
                 
                 float3 ref = reflect(-viewDir, tmp);
                 
@@ -280,6 +280,8 @@ Shader "Custom/Planar Reflection"
                 else {
                     refCol = SAMPLE_TEXTURECUBE(unity_SpecCube0, sampler_unity_SpecCube0, ref);
                 }
+
+                //   return refCol;
                 
 
                 //return  float4(refCol.x, refCol.y, refCol.z, 1);

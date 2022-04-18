@@ -14,9 +14,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 0
   settings:
-    resolutionScale: 0.122
-    intensity: 0.164
-    blurWidth: 0.76
+    resolutionScale: 0.516
+    intensity: 0.112
+    blurWidth: 0.976
+--- !u!114 &-7977447240447595730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f62c9c65cf3354c93be831c8bc075510, type: 3}
+  m_Name: ScreenSpaceAmbientOcclusion
+  m_EditorClassIdentifier: 
+  m_Active: 0
+  m_Shader: {fileID: 4800000, guid: 0849e84e3d62649e8882e9d6f056a017, type: 3}
+  m_Settings:
+    Downsample: 0
+    AfterOpaque: 0
+    Source: 1
+    NormalSamples: 1
+    Intensity: 3
+    DirectLightingStrength: 0.25
+    Radius: 0.035
+    SampleCount: 4
 --- !u!114 &-7504780662573987221
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34,7 +57,7 @@ MonoBehaviour:
     resolutionScale: 0.5
     intensity: 1
     blurWidth: 0.85
---- !u!114 &-5823471320402570280
+--- !u!114 &-6602136135300368786
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -43,13 +66,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9f1ae1bf83544ceea23373a1e864828, type: 3}
-  m_Name: Ray March
+  m_Script: {fileID: 11500000, guid: 615d70af07ef34ee3995e4600e2e9dc0, type: 3}
+  m_Name: VolumetricCloud
   m_EditorClassIdentifier: 
   m_Active: 0
   passSettings:
-    renderPassEvent: 500
-    material: {fileID: 2100000, guid: 21e628f643b3a4d7681845f516d202cc, type: 2}
+    renderPassEvent: 450
+    Resolution: 1
+    cloudMaterial: {fileID: 2100000, guid: 21e628f643b3a4d7681845f516d202cc, type: 2}
 --- !u!114 &-3105342414876434006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94,10 +118,11 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: -3105342414876434006}
   - {fileID: 7899353282978922528}
-  - {fileID: -5823471320402570280}
-  - {fileID: 8670629681386580006}
   - {fileID: -9152189910191353578}
-  m_RendererFeatureMap: aa2156c7869be7d420404653f523a06dd8d3ba2bb0df2eaf2668019ac14354781651215ec4e3fc80
+  - {fileID: -7977447240447595730}
+  - {fileID: 3099660538461417455}
+  - {fileID: -6602136135300368786}
+  m_RendererFeatureMap: aa2156c7869be7d420404653f523a06d1651215ec4e3fc802e6bb34a006a4a91efef4947d634042b6eb6a6202a8060a4
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -134,6 +159,21 @@ MonoBehaviour:
   m_ClusteredRendering: 0
   m_TileSize: 32
   m_IntermediateTextureMode: 1
+--- !u!114 &3099660538461417455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa7413e8dc6344fa783da6fc5773ee1b, type: 3}
+  m_Name: ScreenSpaceSnow
+  m_EditorClassIdentifier: 
+  m_Active: 0
+  settings:
+    snowMaterial: {fileID: 2100000, guid: 24e29657a9dc74e45b43453ee72ea3f2, type: 2}
 --- !u!114 &5967715842303694761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,23 +205,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 0
   m_Shader: {fileID: 4800000, guid: 0f854b35a0cf61a429bd5dcfea30eddd, type: 3}
---- !u!114 &8670629681386580006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 75a484d9207804fc6aac9d660904ade8, type: 3}
-  m_Name: BlurFeature
-  m_EditorClassIdentifier: 
-  m_Active: 0
-  passSettings:
-    renderPassEvent: 450
-    downsample: 2
-    blurStrength: 13
-    blurWidth: 160
-    material: {fileID: 0}
-    rt: {fileID: 8400000, guid: 8216d26b6ecb3471fa7f4a7255c7ff0e, type: 2}

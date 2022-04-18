@@ -1,16 +1,29 @@
-Shader "Costumn/Volumetric Cloud with Atmosphere Model"
+Shader "Custom/Volumetric Cloud with Atmosphere Model"
 {
     Properties{
-        _NoiseTex("texture 3d", 3d) = "" {} _WeatherTex("Weather texture ", 2d) = "" {} 
+        [Header(Shape)]
+        [NoScaleOffset]_NoiseTex("Texture 3d", 3d) = "" {} 
+        [NoScaleOffset]_WeatherTex("Weather texture ", 2d) = "" {} 
         _Cloud_Height_Strength("Cloud Height", range(50, 300)) = 100
-        _SigmaS("scattering coefficient", color) = (1, 1, 1, 1)
-        _SigmaA("absorption coefficient", color) = (0, 0, 0, 0)
-        _SigmaT_Strength("*extinction coefficient ", range(1, 50)) =1
-        _Density_UVStrength("_Density_UVStrength", range(0.0001, 10)) = 1 
-        _UVScale("_UVScale", range(0.001, 0.1)) = 0.05 
-        _Weather_UVScale("Weather UV Scale", range(0.01, 150)) = 1
+
+        [Header(Rendering)]
+        _SigmaS("Scattering Coefficient", color) = (1, 1, 1, 1)
+        _SigmaA("Absorption Coefficient", color) = (0, 0, 0, 0)
+        _SigmaE_Strength("*extinction coefficient ", range(1, 20)) =1
+        _PhaseParameter("Phase Parameter", range(-1,1)) = 1
+        _Density_UVStrength("Density UVStrength", range(0.0001, 10)) = 1 
+        _UVScale("UVScale", range(0.001, 0.1)) = 0.05 
+
+        [Header(Coverage)]
+        _Start_Height("Cloud Start Height",float) = 1000
+        _End_Height("Cloud End Height",float) = 2000
+        _Weather_UVScale("Weather UV Scale", range(0.01, 300)) = 1
+
         _Max_Iter("Max Iter Num",range(8,256)) = 32
- _LightIterNum("Light Iteration Num", range(0, 128)) = 4
+        _LightIterNum("Light Iteration Num", range(0, 128)) = 4
+        
+
+        [NoScaleOffset]_StepNoiseTex("Step Noise Tex", 2d) = "White" {}
     } SubShader
     {
 
@@ -53,20 +66,24 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
 
             TEXTURE2D(_WeatherTex);
             SAMPLER(sampler_WeatherTex);
+            
+
+            TEXTURE2D(_StepNoiseTex);
+            SAMPLER(sampler_StepNoiseTex);
 
             float4 _SigmaS;
             float4 _SigmaA;
 
-            float _SigmaT_Strength;
+            float _SigmaE_Strength;
             
-            #define _SigmaT ((_SigmaS+_SigmaA)/_SigmaT_Strength)
+            #define _SigmaE ((_SigmaS+_SigmaA)/_SigmaE_Strength)
 
             
             float _Density_UVStrength;
             float _UVScale;
             float _Weather_UVScale;
 
-            float4 color_bg;
+            
             
             float _Start_Height;
             float _End_Height;
@@ -75,15 +92,17 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
             
             float EarthRadius;
             float AtmosRadius;
-
+            float _PhaseParameter;
             
-            float3 _Earth_Center;
+            float3 EarthCenter;
 
             float _Cloud_Height_Strength ;
             float _Sun_Height ;
             float _Sun_Intensity;
             float _Max_Iter;
             float _LightIterNum;
+
+            float4x4 _CamtoWorld;
 
             struct Attributes
             {
@@ -112,12 +131,18 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
                 return o;
             }
 
+            
+
+
             float getDensity(float3 pos)
             {
-                float2 uv = pos.xz /25;
+                //float noise = hash(_Time.y * 10)*0.1;
+                float noise= 0;// hash(pos.x +_Time.y * 10)  ;
+                float2 uv = pos.xz /25 + noise;
                 // uv[0]=remap(float2(_Start_Pos.x, _End_Pos.x), float2(0,1), pos.x);
                 // uv[1]=remap(float2(_Start_Pos.z, _End_Pos.z), float2(0,1), pos.z);
 
+                // uv+= float2(_Time.y, 0)*10;
                 //float4 weather = SAMPLE_TEXTURE2D_LOD(_WeatherTex, sampler_WeatherTex, (uv+_Time.y) / _Weather_UVScale, 0);
                 float4 weather = SAMPLE_TEXTURE2D_LOD(_WeatherTex, sampler_WeatherTex, (uv) / _Weather_UVScale, 0);
 
@@ -128,7 +153,7 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
                 float real_Height = weather.g * _Cloud_Height_Strength;
                 float start_altitude = _Start_Height + weather.b * (_End_Height - _Start_Height);
                 float end_altitude = start_altitude + real_Height;
-                float current_height = distance(pos, _Earth_Center) - EarthRadius;
+                float current_height = distance(pos, EarthCenter) - EarthRadius;
 
                 // 映射回(0,1)
                 // 一元二次方程(x-x1)(x-x2), 最大值-(x2-x1)^2/4
@@ -139,6 +164,7 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
                 density *= (x - x1) * (x - x2) * (-4 / ((x2 - x1) * (x2 - x1)));
 
                 //  cloud shape，采样3d纹理
+                // 边缘_Density_UVStrength较大，云朵形状更细碎
                 density *= pow(SAMPLE_TEXTURE3D_LOD(_NoiseTex, sampler_NoiseTex, pos * _UVScale, 0).r, _Density_UVStrength);
 
                 //  height gradient
@@ -151,11 +177,12 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
             // Henyey-Greenstein散射
             float phaseFunction(float c)
             {
-                return 1;
-                float g =     -0.99;
+                // return 1;
+                float g =  _PhaseParameter;
                 return (1 - g * g) / (4 * PI * pow((1 + g * g - 2 * g * c), 1.5));
                 
             }
+
             float3 getShadow(float3 pos){
                 float3 lightDir = normalize( GetMainLight().direction); 
                 
@@ -178,11 +205,10 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
                     
                     if(density>0)
                     {
-                        shadow *= exp(-dd * _SigmaT * density);
+                        shadow *= exp(-dd * _SigmaE * density);
                     }
                     
                 }
-                //shadow  = exp(-dis  * _SigmaT * density);
                 return shadow;
             }
             
@@ -190,7 +216,7 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
 
             float4 RayMarching(float3 ro, float3 rd)
             {
-                float dd = (distance(_Start_Pos, _End_Pos)) / _Max_Iter;
+                float  ini_dd = (distance(_Start_Pos, _End_Pos)) / _Max_Iter;
                 float dis = 0;
 
                 float density = 0;
@@ -201,7 +227,11 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
                 Light light = GetMainLight();
                 float3 lightDir = normalize(light.direction); 
                 float3 viewDir =0 ;
-
+                
+                float3 env = _GlossyEnvironmentColor;
+                float3 pos = 0;
+                float  dd = 0;
+                float noise = 1;
 
                 for (float i = 0; i < _Max_Iter; ++i)
                 {
@@ -209,28 +239,33 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
                     if (transmittance <= 0.01)
                     break;
 
-                    float3 pos = ro + dis * rd;
+                    // 随机步长
+                    // float  dd = ini_dd  + 50 * hash(_Time.y + pos.x);
+                    noise =   SAMPLE_TEXTURE2D_LOD(_StepNoiseTex, sampler_StepNoiseTex, pos.xz, 0);
+                    
+                    dd = ini_dd  * noise;
+
+                    pos = ro + dis * rd;
                     dis += dd;
 
                     density = getDensity(pos);
                     
                     if (density >  0.0)
-                    {
-                        viewDir = normalize(_WorldSpaceCameraPos - pos);
+                    { 
                         // 环境光随海拔增加而线性增加
-                        float3 ambient = float3(92, 156, 199)/255.0;
+                        viewDir = normalize(_WorldSpaceCameraPos - pos);
+                        scatteredLight +=  env  * _SigmaS * transmittance * density;
+                        
+                        // float3 ambient = float3(92, 156, 199)/255.0;
                         // ambient = ambient * remap(float2(abs(_Start_Pos.y), abs(_End_Pos.y)), float2(0,1), abs(pos.y));
                         scatteredLight += transmittance * density * dd  * phaseFunction(dot(lightDir,viewDir)) * getShadow(pos) * light.color * _SigmaS ;//+ ambient*_SigmaS;
                         
-                        transmittance *= exp(-dd * density * _SigmaT);
+                        transmittance *= exp(-dd * density * _SigmaE);
                     }
                     
                 }
                 
-                //  float3 color =  (1- transmittance) * scatteredLight + transmittance * color_bg.rgb ;
-                //return float4(color,1);
                 
-                //  transmittance=1天空颜色，transmittance=1-alphascat
                 
                 return float4( scatteredLight, 1- transmittance);
 
@@ -241,8 +276,8 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
             // 联立解方程
             float2 getRaySphereIntersect(float3 P, float3 d, float R)
             {
-                // circle center
-                float3 C = _Earth_Center;
+                
+                float3 C = EarthCenter;
 
                 float a = dot(d, d);
                 float b = 2 * dot(d, P - C);
@@ -289,25 +324,35 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
                 }
             }
 
+            
+            
             half4 frag(Varyings i) : SV_Target
             {
-                _Earth_Center =_WorldSpaceCameraPos - _WorldSpaceCameraPos * (EarthRadius);
+                //return 1;
+                EarthRadius = 6371e2;
+                EarthCenter =_WorldSpaceCameraPos - float3(0, 1, 0) * (EarthRadius + _WorldSpaceCameraPos.y);
+                
+                // test
+                //  EarthCenter =_WorldSpaceCameraPos - _WorldSpaceCameraPos * (EarthRadius );
+                
                 float linearDepth = LinearEyeDepth(SampleSceneDepth(i.uv), _ZBufferParams);
-                color_bg = SAMPLE_TEXTURE2D(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, i.uv);
+                
 
                 // 校正屏幕长宽比
                 float aspect = _ScreenParams.x / _ScreenParams.y;
                 float2 screenUV = 2 * i.uv - 1;
                 screenUV.y *= 1 / aspect;
-
-                _Start_Height = 1000;
-                _End_Height = 1500;
+                
 
                 clip(linearDepth - _Start_Height);
 
                 float3 ro = _WorldSpaceCameraPos;
                 float3 rd = normalize(float3(screenUV, 1));
-                rd = mul(getViewToWorldMatrix(), float4(rd, 1)).xyz;
+                // clip(rd.y < 0.5);
+                // rd = mul(unity_CameraToWorld, float4(rd, 1)).xyz; 
+                rd = mul(getViewToWorldMatrix(), float4(rd, 1)).xyz;                 
+                //rd = mul(_CamtoWorld, float4(rd, 1)).xyz;
+
                 float start = 0;
                 float end = 0;
                 getRayStartandEndLength(start, end, ro, rd);
@@ -319,7 +364,7 @@ Shader "Costumn/Volumetric Cloud with Atmosphere Model"
                 _Start_Pos = ro + rd * start;
                 _End_Pos = ro + rd * end;
 
-                // clip(_Start_Pos.y); 
+                clip(_Start_Pos.y); 
                 
                 
                 float4 ray = RayMarching(_Start_Pos, rd);

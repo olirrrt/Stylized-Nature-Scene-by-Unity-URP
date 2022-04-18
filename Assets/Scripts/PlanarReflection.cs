@@ -13,6 +13,8 @@ public class PlanarReflection : MonoBehaviour
     [Range(0.1f, 1)] float _textureResolution;
 
     public bool isBlur;
+
+    public bool isClip = true;
     [Range(0, 20)] public int blurStrength = 5;
     [Range(0, 200)] public float blurWidth = 15;
 
@@ -38,21 +40,22 @@ public class PlanarReflection : MonoBehaviour
         //print(Camera.current.name + " " + Camera.main.name);
 
         // https://docs.unity3d.com/ScriptReference/RenderTexture-ctor.html
-        if (rt == null)
-            rt = RenderTexture.GetTemporary((int)(Screen.width * _textureResolution), (int)(Screen.height * _textureResolution), 0);
+        ///if (rt == null)
+        rt = RenderTexture.GetTemporary((int)(Screen.width * _textureResolution), (int)(Screen.height * _textureResolution), 0);
 
         //cam = new Camera();
         cam = this.GetComponent<Camera>();
         //scene窗口
-        if (Camera.current != null)
-            cam.CopyFrom(Camera.current);
+        //if (Camera.current != null)
+        //     cam.CopyFrom(Camera.current);
         //play 窗口
-        else if (Camera.main != null)
-            cam.CopyFrom(Camera.main);
+        // else if (Camera.main != null)
+        cam.CopyFrom(Camera.main);
 
-        //??一次只能有一个相机enabled
-        // gamewindow是main camera啊
+
         cam.enabled = true;
+
+
 
 
 
@@ -69,12 +72,14 @@ public class PlanarReflection : MonoBehaviour
         cam.worldToCameraMatrix = cam.worldToCameraMatrix * getRefMat(plane.transform.up, plane.transform.position);
 
 
-        // https://docs.unity3d.com/ScriptReference/Camera.CalculateObliqueMatrix.html
-        // var normal = plane.transform.up;
-        // var d = -Vector3.Dot(normal, plane.transform.position);
-        // var viewSpacePlane = cam.worldToCameraMatrix.inverse.transpose * (new Vector4(normal.x, normal.y, normal.z, d));
-        // cam.projectionMatrix = cam.CalculateObliqueMatrix(viewSpacePlane);
-
+        if (isClip)
+        {
+            // https://docs.unity3d.com/ScriptReference/Camera.CalculateObliqueMatrix.html
+            var normal = plane.transform.up;
+            var d = -Vector3.Dot(normal, plane.transform.position);
+            var viewSpacePlane = cam.worldToCameraMatrix.inverse.transpose * (new Vector4(normal.x, normal.y, normal.z, d));
+            cam.projectionMatrix = cam.CalculateObliqueMatrix(viewSpacePlane);
+        }
         // 调整背面裁剪
         GL.invertCulling = true;
         cam.Render();
@@ -85,8 +90,8 @@ public class PlanarReflection : MonoBehaviour
         // 伪造掠角镜面反射
         if (isBlur)
         {
-            if (tempBuffer == null)
-                tempBuffer = RenderTexture.GetTemporary((int)(Screen.width * _textureResolution), (int)(Screen.height * _textureResolution), 0);
+            // if (tempBuffer == null)
+            tempBuffer = RenderTexture.GetTemporary((int)(Screen.width * _textureResolution), (int)(Screen.height * _textureResolution), 0);
             Material blurMaterial = new Material(Shader.Find("Hidden/Box Blur"));
 
 
@@ -99,7 +104,6 @@ public class PlanarReflection : MonoBehaviour
 
         ////////////////////////////////////////////////////////////////////////
 
-        //material.SetTexture("_PlanarReflectionTexture", rt);
         Shader.SetGlobalTexture("_PlanarReflectionTexture", rt);
         cam.targetTexture = null;
 

@@ -1,8 +1,25 @@
-Shader "Custom/ Auroras"
+Shader "Custom/ Dynamic Sky Night"
 {
     Properties{
-        [NoScaleOffset] _MainTex("Gradient Sky", 2D) = "white" {} _StarTex("Star", 2D) = "white" {} _NoiseTex("Star Noise", 2D) = "" {} _AurorasStrength("Auroras Strength", Range(0, 30)) = 8
-
+        [Header(Sky)]
+        [NoScaleOffset] _MainTex("Gradient Sky", 2D) = "white" {} 
+        
+        [Header(Star)]
+        _StarTex("Star", 2D) = "white" {}  
+        _StarThreshold("Star Threshold", Range(0, 1)) = 0.95
+        [NoScaleOffset]_NoiseTex("Sparkle Noise", 2D) = "" {}
+        [NoScaleOffset]_NoiseTex2("Sparkle Noise Color", 2D) = "" {} 
+        _StarNoiseThreshold("Star Noise Threshold", Range(0, 1)) = 0.768
+        _StarNoiseStrength("Star Noise Strength", Range(0, 20)) =9
+ _StarSpeed("Move Speed", Range(0, 0.1)) = 0.01
+        [Header(Aurora)]
+        _AurorasStrength("Auroras Strength", Range(0, 30)) = 8
+        _AuroraTilingOffset("Auroras Tiling Offset",Vector) = (4, 0.18, 0, 0)
+        _IterNum("Iter Num", Range(0, 150)) = 25
+        _Rotate("Rotate Angle", Range(0, 360)) = 60
+        _AuroraSpeed("Move Speed", Range(0, 10)) = 0.01
+        
+        
     } SubShader
     {
 
@@ -24,7 +41,7 @@ Shader "Custom/ Auroras"
         {
 
             ZWrite Off
-            //  ZTest on
+            
             Blend SrcAlpha OneMinusSrcAlpha
 
             HLSLPROGRAM
@@ -34,10 +51,7 @@ Shader "Custom/ Auroras"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile _ _SHADOWS_SOFT
             #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
-
-            // debug
-            #define BABYBLUE float4(0, 1, 1, 1)
-            #define RED float4(1, 0, 0, 1)
+            
 
             TEXTURE2D(_StarTex);
             SAMPLER(sampler_StarTex);
@@ -45,14 +59,24 @@ Shader "Custom/ Auroras"
             TEXTURE2D(_NoiseTex);
             SAMPLER(sampler_NoiseTex);
 
+            TEXTURE2D(_NoiseTex2);
+            SAMPLER(sampler_NoiseTex2);
+
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
 
-            float EarthRadius;
-            float3 _Start_Pos;
-            float3 _End_Pos;
-            float3 _Earth_Center;
+            float4 _StarTex_ST;
+            float _StarThreshold;
+            float _StarNoiseThreshold;
+            float _StarNoiseStrength;
+  float _StarSpeed ;
+            
+
             float _AurorasStrength;
+            float4 _AuroraTilingOffset;
+            float _Rotate  ;
+            float _AuroraSpeed ;
+            float _IterNum;
             struct Attributes
             {
                 float4 positionOS : POSITION;
@@ -83,15 +107,23 @@ Shader "Custom/ Auroras"
             }
 
             // 2d旋转矩阵
-            float2x2 mm2(float a)
+            float2x2 clockwiseRotate(float a)
             {
                 float c = cos(a), s = sin(a);
                 return float2x2(c, s, -s, c);
+            }          
+            
+            float2x2 counterClockRotate(float a)
+            {
+                float c = cos(a), s = sin(a);
+                return float2x2(c, -s, s, c);
             }
 
             float tri(float x)
             {
-                return clamp(abs(frac(x) - 0.5), 0.01, 0.49);
+                return   abs(frac(x) - 0.5) ;
+
+                // return clamp(abs(frac(x) - 0.5), 0.01, 0.49);
             }
 
             float2 tri2(float2 p)
@@ -102,124 +134,128 @@ Shader "Custom/ Auroras"
                 //     return frac(sin(dot(n, float2(12.9898, 4.1414))) * 43758.5453);
             // }
 
-            float triNoise2d(float2 p, float spd)
+            float toRadiant(float angle){
+                return angle /180 * PI;
+            }
+
+            float triNoise2d(float2 p)
             {
-                float2x2 m2 = float2x2(0.95534, 0.29552, -0.29552, 0.95534);
+                //  float2x2 m2 = float2x2(0.95534, 0.29552, -0.29552, 0.95534);
+                float2x2 m2 = clockwiseRotate(toRadiant(90));
 
                 float z = 1.8;
+                // 弯曲度
                 float z2 = 2.5;
-                float rz = 0.;
-                p = mul(mm2(p.x * 0.06), p);
+                float rz = 0.0;
+                // float _Rotate = 60;
+                // float _AuroraSpeed = 0.01;
+                p = mul(clockwiseRotate(toRadiant(_Rotate)), p);
                 float2 bp = p;
-                for (float i = 0.; i < 5.; i++)
+                for (float i = 0.; i < 15 ; i++)
                 {
                     float2 dg = tri2(bp * 1.85) * .75;
-                    // dg *= mm2(time*spd);
+                    dg = mul( clockwiseRotate(toRadiant(_Time.y  * _AuroraSpeed)), dg);
                     p -= dg / z2;
 
                     bp *= 1.3;
-                    z2 *= .45;
-                    z *= .42;
-                    p *= 1.21 + (rz - 1.0) * .02;
+                    z2 *= 0.45;
+                    // 震幅减少
+                    z *= 0.42;
+                    p *= 1.21 + (rz - 1.0) * 0.02;
 
+                    // xz平面
                     rz += tri(p.x + tri(p.y)) * z;
-                    // p = mul( -m2,p);
+                    p = mul( -m2,p);
                 }
-                return clamp(1. / pow(rz * 29., 1.3), 0., .55);
+                return clamp(1. / pow(rz * 29., 1.1), 0., .55);
             }
 
             float4 RayMarching(float3 ro, float3 rd)
             {
-                // float dd = (distance(_Start_Pos, _End_Pos)) / _Max_Iter;
                 float dis = 0;
 
                 float3 scatteredLight = 0;
                 float transmittance = 1;
 
-                Light light = GetMainLight();
-                float3 lightDir = normalize(light.direction);
-                float3 viewDir = 0;
+                
 
-                float4 col = float4(0, 0, 0, 0);
-                float4 avgCol = float4(0, 0, 0, 0);
-                ;
-                for (float i = 0; i < 50; ++i)
+                float4 col = 0;
+                float4 avgCol = 0;
+
+                
+                for (float i = 0; i < _IterNum; ++i)
                 {
 
-                    // if (transmittance <= 0.01)
-                    // break;
-
-                    // float3 pos = ro + dis * rd;
-                    //  dis += dd;
-
-                    // float of =0.;// 0.006*hash21(gl_FragCoord.xy)*smoothstep(0.,15., i);
-                    // ?累积距离
-                    float pt = ((0.8 + pow(i, 1.4) * 0.002)) / (rd.y * 4.0 + 0.5); // 密度
-                    // pt -= of;
-                    // pt =0.5;
+                    // 平铺
+                    float pt = ((0.8 + pow(i, 1.4) * 0.002)) / (rd.y * _AuroraTilingOffset.x + _AuroraTilingOffset.y  ); // 密度
+                    
                     float3 pos = ro + pt * rd;
                     float2 p = pos.zx;
-                    float rzt = triNoise2d(p, 0.36);
+                    float rzt = triNoise2d(p);
                     float4 col2 = float4(0, 0, 0, rzt);
                     // r--, g++, b--
-                    col2.rgb = (sin(1. - float3(2.15, -.5, 0.8) + i * 0.043) * 0.5 + 0.5) * rzt;
-                    avgCol = lerp(avgCol, col2, 0.5);
-                    col += avgCol * pow(2, -i * 0.065 - 2.5) * smoothstep(0., 5., i);
+                    // 2.15, -.5, 0.8
+                    col2.rgb = (sin(1.0 - float3(3.15, -0.5, -0.3) + i * 0.043) * 0.5 + 0.5) * rzt;
+                    avgCol = lerp(avgCol, col2, 0.65);
+                    col += avgCol * pow(2, -i * 0.065 - 2.5) ;//* smoothstep(0., 5., i);
 
-                    col *= saturate(rd.y * 15. + .4);
+                    //  col *= saturate(rd.y * 15. + .4);
                 }
+
                 col.rgb *= _AurorasStrength;
+
                 return col;
 
-                // return float4( scatteredLight.x, scatteredLight.y, scatteredLight.z, 1- transmittance);
             }
-            float2 getRaySphereIntersect(float3 P, float3 d, float R)
-            {
-                // circle center
-                float3 C = _Earth_Center;
+            
 
-                float a = dot(d, d);
-                float b = 2 * dot(d, P - C);
-                float c = dot(P - C, P - C) - R * R;
-                float delta = b * b - 4 * a * c;
-                if (delta < 0)
-                return float2(-1, -1);
-                float x1 = (-b - sqrt(delta)) / (2 * a);
-                float x2 = (-b + sqrt(delta)) / (2 * a);
-                return float2(x1, x2);
-            }
-
-            float4 renderStar(float3 v)
+            
+            float4 renderStar(float3 v, float3 pos)
             {
                 if (v.y < 0)
                 return 0;
-                float intensity = 4;
-                intensity = lerp(0, 2, pow(v.y, 0.9));
-                float fade = saturate(1 - 3 * (_MainLightPosition.y));
-                // v.y = 1 - ( 0.5 * v.y + 0.5);
-                // float2 uv = (v.xz*12);// *(v.y+1);
-                // float2 uv = (v.xz*12);// *(v.y+1);
-                float _Star_Scale = 0.45;
-                float speed = 0.01;
-                float2 uv = v.xz / v.y * _Star_Scale + _Time.y * speed;
+                
+                // n<0, 接近0时增长快
+                float fade = pow(v.y, 0.099);
+                // fade = 1;
+                
+                // float fade = saturate(1 - 3 * (_MainLightPosition.y));
+                
+               
+                float2 move = float2(_Time.y * _StarSpeed, 0);
+                
+                float2 uv2 = pos.xz  + move;                
+                float2 uv = v.xz / v.y  + move;
+
+                uv *= _StarTex_ST.xy;
+
                 float4 starColor = 1 - SAMPLE_TEXTURE2D(_StarTex, sampler_StarTex, uv);
+                
+                // 超过一定阈值保留
+                
+                starColor *= step(_StarThreshold, starColor.r) * fade;
+                // starColor = pow(starColor, 2);
 
-                // return starColor ;
+                float noise = SAMPLE_TEXTURE2D(_NoiseTex, sampler_NoiseTex, uv  ).r;
+                float4 noiseColor = SAMPLE_TEXTURE2D(_NoiseTex2, sampler_NoiseTex2, uv2);
+                
+                // float4 noiseColor2 = SAMPLE_TEXTURE2D(_NoiseTex2, sampler_NoiseTex2, uv2);
+                // starColor  +=  step(0.78, noise) * noiseColor2  * _StarNoiseStrength; 
 
-                float noise = SAMPLE_TEXTURE2D(_NoiseTex, sampler_NoiseTex, uv).r;
-
-                starColor *= step(0.9, starColor.r);
-
-                starColor *= step(0.6, noise) * 1;
-                // return starColor * fade;
-                return pow(starColor, intensity);
+                //  return starColor;    
+                noise = step(_StarNoiseThreshold, noise);
+                
+                
+                
+                starColor  +=  step(_StarNoiseThreshold, noise) * noiseColor  * _StarNoiseStrength; 
+                
+                return starColor ;
+                
             }
+            
 
             float4 frag(Varyings i) : SV_Target
             {
-                // EarthRadius = 6360e3;
-                //_Earth_Center = float3(0, 0, 0) - float3(0, 1, 0) * (EarthRadius);
-
                 float3 ro = 0;
                 float3 rd = normalize(i.positionOS - ro);
 
@@ -229,15 +265,18 @@ Shader "Custom/ Auroras"
 
                 float2 uv = float2(1 - (i.positionOS.y * 0.5 + 0.5), 0.5);
                 float4 skyColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
-                float4 starColor = renderStar(v);
+                float4 starColor =  renderStar(v, i.positionOS);
 
-                // float4 skyColor = 0;
+                
 
                 skyColor += starColor;
-                float4 aurorasColor = RayMarching(_WorldSpaceCameraPos, rd);
+
+                
+                float4 aurorasColor =  RayMarching(_WorldSpaceCameraPos, rd);
+
                 return aurorasColor * aurorasColor.a + (1 - aurorasColor.a) * skyColor;
 
-                return skyColor + skyColor.a * (starColor); //+float4(0.5,0.2,0.2,1);
+                
             }
             ENDHLSL
         }

@@ -1,4 +1,4 @@
-Shader "Unlit/Dunes"
+Shader "Custom/Dunes"
 {
     Properties{
         [MainColor] _BaseColor("base color", color) = (1, 1, 1, 1)

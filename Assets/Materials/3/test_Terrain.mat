@@ -57,11 +57,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _DisplacementStrength: 1.79
+    - _DisplacementStrength: 7.15
     - _TessellationUniform: 5
     - _TopThreshold: 0.98
     m_Colors:
-    - _BaseColor: {r: 0.67169344, g: 0.8490566, b: 0.42052332, a: 1}
+    - _BaseColor: {r: 0.764151, g: 0.764151, b: 0.764151, a: 1}
     - _MapScale: {r: 1, g: 1, b: 0, a: 0}
     - _TopBaseColor: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

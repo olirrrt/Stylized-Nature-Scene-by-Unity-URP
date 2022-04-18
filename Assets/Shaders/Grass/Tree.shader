@@ -21,8 +21,9 @@ Shader "Custom/Tree"
     {
         Tags{
             "RenderPipeline" = "UniversalPipeline"
-            "RenderType" = "opaque"
-            
+            /// "RenderType" = "opaque"
+            // "RenderType"="sss"
+            "RenderType"="TransparentCutout"
             //    "LightMode" = "ForwardAdd"
 
         }
@@ -50,8 +51,8 @@ Shader "Custom/Tree"
 
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
             // ?
-           // #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
- 
+            // #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            
             //#pragma multi_compile _ _SHADOWS_SOFT
             
 
@@ -178,17 +179,74 @@ Shader "Custom/Tree"
                 //  attenuation = pow(attenuation, _SSRange) * _SSStrength; 
                 //  color += attenuation * _SSColor;// * pow(i.positionOS.y, 2);
                 
+                 if(N.y>0.8)color.rgb = float3(1,1,1);
+               
+               
                 color.rgb = MixFog(color.rgb,  i.fogFactor );  
-              //  return float4(N,1);
+                //  return float4(N,1);
                 
                 return color;
             }
 
             ENDHLSL
         }
+        Pass
+        {
+           // Name "DepthOnly"
+           Tags{"LightMode" = "DepthOnly"}  
+           // HLSLPROGRAM
+          //  TEXTURE2D(_MainTex);
+           // SAMPLER(sampler_MainTex); 
+           // float _AlphaClipThreshold;
+            
+           // #include "CustomDepthOnlyPass.hlsl"   
 
-        Pass{
-            Tags{"LightMode" = "ShadowCaster"}
+           // #pragma vertex DepthOnlyVertexVertex
+           // #pragma fragment DepthOnlyVertexFragment 
+
+            //ENDHLSL
         }
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags{"LightMode" = "ShadowCaster"}
+
+            ZWrite On
+            ZTest LEqual
+            ColorMask 0
+            Cull[_Cull]
+
+            HLSLPROGRAM 
+            //  #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+            #include "CustomShadowCasterPass.hlsl"
+            // #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.6 
+            
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
+            #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+
+            // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+            #pragma shader_feature _PARALLAX_MAP
+            #pragma shader_feature _TESSELLATION_EDGE
+            #pragma vertex ShadowPassVertex
+            #pragma fragment ShadowPassFragment 
+            
+            
+            
+            ENDHLSL
+        }
+
+
     }
 }

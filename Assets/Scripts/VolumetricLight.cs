@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
- using System.Collections.Generic;
+using System.Collections.Generic;
 
 public class VolumetricLight : ScriptableRendererFeature
-{  
+{
 
     [System.Serializable]
     public class VolumetricLightSettings
@@ -44,16 +44,16 @@ public class VolumetricLight : ScriptableRendererFeature
             intensity = settings.intensity;
             blurWidth = settings.blurWidth;
 
-            occludersMaterial = new Material(Shader.Find("Hidden/RW/UnlitColor"));
-            radialBlurMaterial = new Material(Shader.Find("Hidden/RadialBlur"));
-            
+            occludersMaterial = new Material(Shader.Find("Custom/Hidden/UnlitColor"));
+            radialBlurMaterial = new Material(Shader.Find("Custom/Hidden/RadialBlur"));
+
             shaderTagIdList.Add(new ShaderTagId("UniversalPipeline"));
             shaderTagIdList.Add(new ShaderTagId("UniversalForward"));
             shaderTagIdList.Add(new ShaderTagId("UniversalForwardOnly"));
             shaderTagIdList.Add(new ShaderTagId("LightweightForward"));
             shaderTagIdList.Add(new ShaderTagId("SRPDefaultUnlit"));
         }
-        
+
         public void SetCameraColorTarget(RenderTargetIdentifier cameraColorTargetIdent)
         {
             this.cameraColorTargetIdent = cameraColorTargetIdent;
@@ -66,24 +66,18 @@ public class VolumetricLight : ScriptableRendererFeature
         // The render pipeline will ensure target setup and clearing happens in a performant manner.
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
-            // 1 get a copy of the current camera’s RenderTextureDescriptor.
-            RenderTextureDescriptor cameraTextureDescriptor =
-                renderingData.cameraData.cameraTargetDescriptor;
+            RenderTextureDescriptor cameraTextureDescriptor = renderingData.cameraData.cameraTargetDescriptor;
 
-            // 2 disable the depth buffer
+
             cameraTextureDescriptor.depthBufferBits = 0;
 
-            // 3 down sample
-            cameraTextureDescriptor.width = Mathf.RoundToInt(
-                cameraTextureDescriptor.width * resolutionScale);
-            cameraTextureDescriptor.height = Mathf.RoundToInt(
-                cameraTextureDescriptor.height * resolutionScale);
 
-            // 4 create a new texture
-            cmd.GetTemporaryRT(occluders.id, cameraTextureDescriptor,
-                FilterMode.Bilinear);
+            cameraTextureDescriptor.width = Mathf.RoundToInt(cameraTextureDescriptor.width * resolutionScale);
+            cameraTextureDescriptor.height = Mathf.RoundToInt(cameraTextureDescriptor.height * resolutionScale);
 
-            // 5
+
+            cmd.GetTemporaryRT(occluders.id, cameraTextureDescriptor, FilterMode.Bilinear);
+
             ConfigureTarget(occluders.Identifier());
         }
 
@@ -93,19 +87,16 @@ public class VolumetricLight : ScriptableRendererFeature
         // You don't have to call ScriptableRenderContext.submit, the render pipeline will call it at specific points in the pipeline.
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
-            // 1
+            
             if (!occludersMaterial || !radialBlurMaterial)
             {
                 return;
             }
 
-
-            // 2
             CommandBuffer cmd = CommandBufferPool.Get();
 
-            // 3
-            using (new ProfilingScope(cmd,
-                new ProfilingSampler("VolumetricLight")))
+            
+            using (new ProfilingScope(cmd, new ProfilingSampler("VolumetricLight")))
             {
                 // TODO: 1
                 context.ExecuteCommandBuffer(cmd);
@@ -137,7 +128,7 @@ public class VolumetricLight : ScriptableRendererFeature
 
             }
 
-            // 4
+
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
         }

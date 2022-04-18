@@ -9,8 +9,8 @@ float4 _CameraDepthTexture_TexelSize;
 TEXTURE2D(_CameraDepthTexture);
 SAMPLER(sampler_CameraDepthTexture);
       
-       TEXTURE2D(_PlanarReflectionTexture);
-            SAMPLER(sampler_PlanarReflectionTexture);
+TEXTURE2D(_PlanarReflectionTexture);
+SAMPLER(sampler_PlanarReflectionTexture);
 
 
 void CircleWave(out float2 D, float2 xz, float cicle)
@@ -78,9 +78,11 @@ float3 getUnderWaterColor(float4 screenPos, float3 tangentSpaceNormal, float4 _W
     depth = saturate(bottom - surface);
 
     float4 bgColor = SAMPLE_TEXTURE2D(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, screenUV);
-    float4 fogColor = lerp(_WaterFogColor, _WaterFogColor2, saturate(depth / 28.0));
-    // float4 fogColor=_WaterFogColor;
+    float _DepthStrength = 1 ;
+    depth /= _DepthStrength;
+    float4 fogColor = lerp(_WaterFogColor, _WaterFogColor2, saturate(depth ));
 
+    //return depth  ; 
     return lerp(fogColor, bgColor, exp2(-_WaterFogDensity * depth)).rgb;
 }
 
