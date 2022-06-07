@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Directional Water 1
+  m_Name: Directional Water 2
   m_Shader: {fileID: 4800000, guid: 1d52823ff820c43b78317a484d6462b2, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -31,10 +31,6 @@ Material:
         m_Texture: {fileID: 2800000, guid: 5126f3304d2084d7e824deb2e79c69ae, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _FoamTex:
-        m_Texture: {fileID: 2800000, guid: 4df5db0ebc6314f218cb9e4b60c041cb, type: 3}
-        m_Scale: {x: 1.55, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _NoiseMap:
         m_Texture: {fileID: 2800000, guid: b7efb4358d194468d9811548e7124bb8, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -47,37 +43,29 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _RefNoiseTex:
-        m_Texture: {fileID: 2800000, guid: e96df4ac58df6427d94d328baf8a4a23, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _Alpha: 1
     - _Amplitude: 0.05
-    - _FoamRange: 1
-    - _FoamStrength: 0
     - _FoamThickness: 0.097
-    - _FoamThreshold: 0
     - _GridResolution: 30
     - _NoiseSpeed: 1
     - _NoiseStrength: 0.021
-    - _RefNoiseSpeed: 0.3
+    - _RefNoiseSpeed: 0.23
     - _RefNoiseStrength: 0.153
     - _RefNoiseTiling: 3.82
     - _RefractionStrength: 0.82
-    - _SpecularRange: 256
     - _SpecularStrength: 39
     - _Speed: 0.01
     - _Strength: 0.015
     - _Tiling: 9.03
-    - _Transparency: 0.69
+    - _Transparency: 0.549
     - _WaterFogDensity: 1
     - _Wave_Speed: 0.5
     - _Wavelength: 1
     m_Colors:
     - _BaseColor: {r: 0.033374865, g: 0.20277624, b: 0.2830189, a: 1}
-    - _FoamColor: {r: 0.995283, g: 1, b: 0.99935734, a: 1}
+    - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
     - _WaterFogColor: {r: 0.109803915, g: 1, b: 0.90949523, a: 1}
     - _WaterFogColor2: {r: 0.013705952, g: 0.39177528, b: 0.41509432, a: 1}
   m_BuildTextureStacks: []
